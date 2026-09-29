@@ -43,4 +43,8 @@ public class VaultViewModel extends AndroidViewModel {
     public void update(Credential credential) {
         repository.update(credential);
     }
+
+    public void upgradeLegacyTotpSecrets() {
+        repository.upgradeLegacyTotpSecrets();
+    }
 }

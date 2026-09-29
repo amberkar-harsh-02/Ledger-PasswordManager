@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -18,18 +17,19 @@ import androidx.core.content.ContextCompat;
 
 import com.example.passmanager.R;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.util.concurrent.Executor;
 
 import com.example.passmanager.data.local.VaultDatabase;
 import com.example.passmanager.data.model.AuditLog;
+import com.example.passmanager.security.PinHasher;
+import com.example.passmanager.security.PinLockout;
 import java.util.concurrent.Executors;
 
 public class LockScreenActivity extends AppCompatActivity {
 
     private StringBuilder currentPin = new StringBuilder();
     private ImageView[] pinDots;
+    private View pinDotsRow;
     private TextView textTitle, textSubtitle;
     private SharedPreferences prefs;
 
@@ -39,10 +39,13 @@ public class LockScreenActivity extends AppCompatActivity {
     // The 72-Hour Rule (in milliseconds)
     private static final long SEVENTY_TWO_HOURS = 72L * 60 * 60 * 1000;
 
+    // True while a PIN is being hashed/checked in the background; keypad input is ignored meanwhile
+    private boolean isVerifying = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
+        androidx.activity.EdgeToEdge.enable(this);
         setContentView(R.layout.activity_lock_screen);
 
         prefs = getSharedPreferences("VaultSecurityPrefs", MODE_PRIVATE);
@@ -54,29 +57,55 @@ public class LockScreenActivity extends AppCompatActivity {
                 findViewById(R.id.dot_1), findViewById(R.id.dot_2),
                 findViewById(R.id.dot_3), findViewById(R.id.dot_4)
         };
+        pinDotsRow = findViewById(R.id.pin_dots);
 
         setupKeypad();
+        updatePinDots();
 
         String savedPinHash = prefs.getString("MASTER_PIN_HASH", null);
         if (savedPinHash == null) {
-            // First time setup
+            // First time setup. No fingerprint here: there is no PIN yet to fall back on,
+            // and a fingerprint must never open a vault that has no PIN.
             currentState = "CREATE_PIN";
-            textTitle.setText("Create Master PIN");
-            textSubtitle.setText("Set a 4-digit PIN to secure your vault");
+            textTitle.setText(R.string.lock_title_create);
+            showInstruction(R.string.lock_subtitle_create);
+            findViewById(R.id.btn_fingerprint).setVisibility(View.INVISIBLE);
         } else {
             // Unlock flow: Evaluate the 72-hour threat model
             long lastPinTime = prefs.getLong("LAST_SUCCESSFUL_PIN", 0);
             boolean isPinRequired = (System.currentTimeMillis() - lastPinTime) > SEVENTY_TWO_HOURS;
 
+            textTitle.setText(R.string.lock_title_unlock);
             if (isPinRequired) {
-                textSubtitle.setText("72 hours since last PIN entry. PIN required.");
+                showInstruction(R.string.lock_subtitle_pin_required);
                 // Hide the fingerprint button to enforce the rule
                 findViewById(R.id.btn_fingerprint).setVisibility(View.INVISIBLE);
             } else {
-                // Safe to use biometrics! Auto-launch the prompt.
-                textSubtitle.setText("Enter PIN or tap icon for fingerprint");
+                showInstruction(R.string.lock_subtitle_unlock);
             }
         }
+    }
+
+    // --- MESSAGES (inline under the title instead of toasts) ---
+
+    private void showInstruction(int messageRes) {
+        textSubtitle.setText(messageRes);
+        textSubtitle.setTextColor(com.google.android.material.color.MaterialColors.getColor(
+                textSubtitle, com.google.android.material.R.attr.colorOnSurfaceVariant));
+    }
+
+    private void showError(CharSequence message) {
+        textSubtitle.setText(message);
+        textSubtitle.setTextColor(com.google.android.material.color.MaterialColors.getColor(
+                textSubtitle, androidx.appcompat.R.attr.colorError));
+        pinDotsRow.performHapticFeedback(android.view.HapticFeedbackConstants.REJECT);
+        if (android.animation.ValueAnimator.areAnimatorsEnabled()) {
+            pinDotsRow.startAnimation(android.view.animation.AnimationUtils.loadAnimation(this, R.anim.shake));
+        }
+    }
+
+    private void showLockout(long lockedForMs) {
+        showError(getString(R.string.lock_locked_out, (int) ((lockedForMs + 999) / 1000)));
     }
 
     private void setupKeypad() {
@@ -84,7 +113,7 @@ public class LockScreenActivity extends AppCompatActivity {
 
         for (int id : numberButtons) {
             findViewById(id).setOnClickListener(v -> {
-                if (currentPin.length() < 4) {
+                if (!isVerifying && currentPin.length() < 4) {
                     currentPin.append(((Button) v).getText().toString());
                     updatePinDots();
                     if (currentPin.length() == 4) processPinEntry();
@@ -93,7 +122,7 @@ public class LockScreenActivity extends AppCompatActivity {
         }
 
         findViewById(R.id.btn_backspace).setOnClickListener(v -> {
-            if (currentPin.length() > 0) {
+            if (!isVerifying && currentPin.length() > 0) {
                 currentPin.deleteCharAt(currentPin.length() - 1);
                 updatePinDots();
             }
@@ -104,14 +133,10 @@ public class LockScreenActivity extends AppCompatActivity {
 
     private void updatePinDots() {
         for (int i = 0; i < 4; i++) {
-            if (i < currentPin.length()) {
-                pinDots[i].setImageResource(android.R.drawable.presence_online);
-                pinDots[i].setColorFilter(ContextCompat.getColor(this, R.color.vault_accent));
-            } else {
-                pinDots[i].setImageResource(android.R.drawable.presence_invisible);
-                pinDots[i].setColorFilter(ContextCompat.getColor(this, R.color.vault_text_secondary));
-            }
+            pinDots[i].setImageResource(i < currentPin.length() ? R.drawable.pin_dot_filled : R.drawable.pin_dot_empty);
         }
+        // TalkBack reads the progress, never the digits themselves
+        pinDotsRow.setContentDescription(getString(R.string.lock_digits_entered, currentPin.length()));
     }
 
     private void processPinEntry() {
@@ -120,59 +145,85 @@ public class LockScreenActivity extends AppCompatActivity {
         if (currentState.equals("CREATE_PIN")) {
             setupFirstPin = enteredPin;
             currentState = "CONFIRM_PIN";
-            textTitle.setText("Confirm Master PIN");
-            textSubtitle.setText("Enter your 4-digit PIN again");
+            textTitle.setText(R.string.lock_title_confirm);
+            showInstruction(R.string.lock_subtitle_confirm);
             resetPad();
 
         } else if (currentState.equals("CONFIRM_PIN")) {
             if (enteredPin.equals(setupFirstPin)) {
-                // HASH THE PIN BEFORE SAVING!
-                String hashedPin = hashPin(enteredPin);
-                prefs.edit().putString("MASTER_PIN_HASH", hashedPin).apply();
-                Toast.makeText(this, "PIN Secured & Saved!", Toast.LENGTH_SHORT).show();
-                unlockVault(true, false); // True because they successfully used the PIN
+                // HASH THE PIN BEFORE SAVING! (PBKDF2 is slow on purpose, so run it off the UI thread)
+                isVerifying = true;
+                Executors.newSingleThreadExecutor().execute(() -> {
+                    String hashedPin = PinHasher.hash(enteredPin);
+                    // Fill the duress slot with a decoy, so it looks the same whether or not a duress PIN is set later
+                    String decoy = PinHasher.decoyHash();
+                    runOnUiThread(() -> {
+                        isVerifying = false;
+                        prefs.edit().putString("MASTER_PIN_HASH", hashedPin).putString("DURESS_PIN_HASH", decoy).apply();
+                        unlockVault(true, false); // True because they successfully used the PIN
+                    });
+                });
             } else {
-                Toast.makeText(this, "PINs do not match. Try again.", Toast.LENGTH_SHORT).show();
                 currentState = "CREATE_PIN";
-                textTitle.setText("Create Master PIN");
+                textTitle.setText(R.string.lock_title_create);
                 resetPad();
+                showError(getString(R.string.lock_mismatch));
             }
 
         } else if (currentState.equals("UNLOCK")) {
+            long lockedForMs = PinLockout.remainingMs(prefs);
+            if (lockedForMs > 0) {
+                resetPad();
+                showLockout(lockedForMs);
+                return;
+            }
+
             String savedPinHash = prefs.getString("MASTER_PIN_HASH", "");
             String savedDuressHash = prefs.getString("DURESS_PIN_HASH", "");
-            String enteredHash = hashPin(enteredPin);
 
-            if (enteredHash != null && enteredHash.equals(savedPinHash)) {
-                // REAL MASTER PIN
-                logAccessAttempt("PIN_MASTER", true);
-                unlockVault(true, false); // <-- Pass false for isDuress
+            isVerifying = true;
+            Executors.newSingleThreadExecutor().execute(() -> {
+                boolean isMaster = PinHasher.verify(enteredPin, savedPinHash);
+                boolean isDuress = !isMaster && PinHasher.verify(enteredPin, savedDuressHash);
 
-            } else if (enteredHash != null && !savedDuressHash.isEmpty() && enteredHash.equals(savedDuressHash)) {
-                // DURESS PIN ENTERED! Deploy the illusion.
-                logAccessAttempt("PIN_DURESS", true);
-                unlockVault(true, true); // <-- Pass true for isDuress
+                // Silently move legacy SHA-256 hashes to PBKDF2 now that we know the PIN
+                if (isMaster && PinHasher.needsUpgrade(savedPinHash)) {
+                    prefs.edit().putString("MASTER_PIN_HASH", PinHasher.hash(enteredPin)).apply();
+                } else if (isDuress && PinHasher.needsUpgrade(savedDuressHash)) {
+                    prefs.edit().putString("DURESS_PIN_HASH", PinHasher.hash(enteredPin)).apply();
+                }
+                // Vaults created before decoys existed: add one, so an empty slot doesn't give away "no duress PIN"
+                if (isMaster && savedDuressHash.isEmpty()) {
+                    prefs.edit().putString("DURESS_PIN_HASH", PinHasher.decoyHash()).apply();
+                }
 
-            } else {
-                logAccessAttempt("PIN", false);
-                Toast.makeText(this, "Incorrect PIN", Toast.LENGTH_SHORT).show();
-                resetPad();
-            }
-        }
-    }
+                runOnUiThread(() -> {
+                    isVerifying = false;
+                    if (isMaster) {
+                        // REAL MASTER PIN
+                        PinLockout.clear(prefs);
+                        logAccessAttempt("PIN_MASTER", true);
+                        unlockVault(true, false); // <-- Pass false for isDuress
 
-    // --- SECURITY & CRYPTOGRAPHY ---
+                    } else if (isDuress) {
+                        // DURESS PIN ENTERED! Deploy the illusion.
+                        // Logged exactly like the master PIN: the unlock history must not reveal a duress unlock
+                        PinLockout.clear(prefs);
+                        logAccessAttempt("PIN_MASTER", true);
+                        unlockVault(true, true); // <-- Pass true for isDuress
 
-    private String hashPin(String plainPin) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            // Add a static salt to prevent basic rainbow table attacks
-            digest.update("LedgerVaultSalt2026".getBytes(StandardCharsets.UTF_8));
-            byte[] hash = digest.digest(plainPin.getBytes(StandardCharsets.UTF_8));
-            return android.util.Base64.encodeToString(hash, android.util.Base64.NO_WRAP);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+                    } else {
+                        logAccessAttempt("PIN", false);
+                        long lockoutMs = PinLockout.registerFailure(prefs);
+                        resetPad();
+                        if (lockoutMs > 0) {
+                            showLockout(lockoutMs);
+                        } else {
+                            showError(getString(R.string.lock_wrong_pin));
+                        }
+                    }
+                });
+            });
         }
     }
 
@@ -188,17 +239,28 @@ public class LockScreenActivity extends AppCompatActivity {
             }
 
             @Override
+            public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
+                super.onAuthenticationError(errorCode, errString);
+                // E.g. no fingerprint enrolled: say why instead of doing nothing. "Use PIN" stays quiet.
+                if (errorCode != BiometricPrompt.ERROR_USER_CANCELED
+                        && errorCode != BiometricPrompt.ERROR_NEGATIVE_BUTTON
+                        && errorCode != BiometricPrompt.ERROR_CANCELED) {
+                    showError(errString);
+                }
+            }
+
+            @Override
             public void onAuthenticationFailed() {
                 super.onAuthenticationFailed();
-                logAccessAttempt("BIOMETRIC", false); // <-- NEW: Log Failure
-                Toast.makeText(LockScreenActivity.this, "Biometric failed", Toast.LENGTH_SHORT).show();
+                // The system prompt already shows "not recognized"; just keep the audit trail
+                logAccessAttempt("BIOMETRIC", false);
             }
         });
 
         BiometricPrompt.PromptInfo promptInfo = new BiometricPrompt.PromptInfo.Builder()
-                .setTitle("Unlock Ledger")
-                .setSubtitle("Confirm your biometrics to access your vault")
-                .setNegativeButtonText("Use PIN")
+                .setTitle(getString(R.string.biometric_title))
+                .setSubtitle(getString(R.string.biometric_subtitle))
+                .setNegativeButtonText(getString(R.string.biometric_use_pin))
                 .build();
 
         biometricPrompt.authenticate(promptInfo);
@@ -209,6 +271,8 @@ public class LockScreenActivity extends AppCompatActivity {
             prefs.edit().putLong("LAST_SUCCESSFUL_PIN", System.currentTimeMillis()).apply();
         }
 
+        // Opens the session for every protected screen; autofill stays silent in a duress session
+        com.example.passmanager.security.VaultSession.onUnlocked(isDuress);
         Intent intent = new Intent(LockScreenActivity.this, MainActivity.class);
         intent.putExtra("IS_DURESS_MODE", isDuress); // <-- THE VOLATILE MEMORY FIX
         startActivity(intent);

@@ -1,6 +1,5 @@
 package com.example.passmanager.ui.main;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,25 +13,32 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.passmanager.PasswordStrength;
 import com.example.passmanager.R;
 import com.example.passmanager.data.model.Credential;
 import com.example.passmanager.ui.viewmodel.VaultViewModel;
+import com.google.android.material.divider.MaterialDividerItemDecoration;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Random;
 
+/**
+ * Home: greeting, the vault balance (strong / fair / weak), and the logins that need attention.
+ */
 public class HomeFragment extends Fragment {
 
-    private VaultViewModel vaultViewModel;
-    private TextView textTotalPasswords;
-    private TextView textWeakPasswords;
-    private TextView textStrongPasswords;
-
-    // Split the text views
-    private TextView textHeaderGreeting;
-    private TextView textQuip;
+    private TextView textGreeting;
+    private TextView textTotal;
+    private VaultBalanceBar balanceBar;
+    private View balanceLegend;
+    private TextView textStrong;
+    private TextView textFair;
+    private TextView textWeak;
+    private TextView textAttentionTitle;
+    private TextView textAttentionHint;
+    private RecyclerView attentionList;
+    private View emptyState;
 
     private CredentialAdapter adapter;
 
@@ -41,116 +47,98 @@ public class HomeFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
-        textTotalPasswords = view.findViewById(R.id.text_total_passwords);
-        textWeakPasswords = view.findViewById(R.id.text_weak_passwords);
-        textStrongPasswords = view.findViewById(R.id.text_strong_passwords);
+        textGreeting = view.findViewById(R.id.textHeaderGreeting);
+        textTotal = view.findViewById(R.id.text_total_logins);
+        balanceBar = view.findViewById(R.id.balance_bar);
+        balanceLegend = view.findViewById(R.id.balance_legend);
+        textStrong = view.findViewById(R.id.text_strong_count);
+        textFair = view.findViewById(R.id.text_fair_count);
+        textWeak = view.findViewById(R.id.text_weak_count);
+        textAttentionTitle = view.findViewById(R.id.text_attention_title);
+        textAttentionHint = view.findViewById(R.id.text_attention_hint);
+        attentionList = view.findViewById(R.id.recyclerView_vulnerabilities);
+        emptyState = view.findViewById(R.id.empty_state);
 
-        // Link the new IDs
-        textHeaderGreeting = view.findViewById(R.id.textHeaderGreeting);
-        textQuip = view.findViewById(R.id.textQuip);
+        textGreeting.setText(greeting());
 
-        // --- SETUP DYNAMIC GREETING ---
-        setupStandUpGreeting();
-
-        // --- Setup the Vulnerability List ---
-        RecyclerView recyclerView = view.findViewById(R.id.recyclerView_vulnerabilities);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        // --- Logins that need attention ---
+        attentionList.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new CredentialAdapter();
-        recyclerView.setAdapter(adapter);
+        attentionList.setAdapter(adapter);
+        MaterialDividerItemDecoration divider = new MaterialDividerItemDecoration(requireContext(), LinearLayoutManager.VERTICAL);
+        divider.setDividerInsetStart(getResources().getDimensionPixelSize(R.dimen.list_divider_inset));
+        divider.setLastItemDecorated(false);
+        attentionList.addItemDecoration(divider);
 
         // --- CHECK THREAT LEVEL ---
         boolean isDuressMode = requireActivity().getIntent().getBooleanExtra("IS_DURESS_MODE", false);
 
-        vaultViewModel = new ViewModelProvider(requireActivity()).get(VaultViewModel.class);
+        // Empty vault: offer to add a login (never in duress mode, which hides adding)
+        View addButton = view.findViewById(R.id.btn_empty_add);
+        addButton.setVisibility(isDuressMode ? View.GONE : View.VISIBLE);
+        addButton.setOnClickListener(v -> {
+            if (requireActivity() instanceof MainActivity) ((MainActivity) requireActivity()).showAddBottomSheet();
+        });
 
-        vaultViewModel.getAllCredentials().observe(getViewLifecycleOwner(), credentials -> {
-            if (isDuressMode) {
-                // THE ILLUSION: Hardcode everything to zero and clear the list
-                textTotalPasswords.setText("0");
-                textWeakPasswords.setText("0");
-                textStrongPasswords.setText("0");
-                adapter.setCredentials(new ArrayList<>());
-            } else if (credentials != null) {
-                // REAL MODE: Calculate actual security scores
-                int total = credentials.size();
-                int weakCount = 0;
-                int strongCount = 0;
-
-                List<Credential> vulnerableList = new ArrayList<>();
-
-                for (Credential cred : credentials) {
-                    if (cred.getHealthScore() <= 1) {
-                        weakCount++;
-                        vulnerableList.add(cred);
-                    } else {
-                        strongCount++;
-                    }
-                }
-
-                textTotalPasswords.setText(String.valueOf(total));
-                textWeakPasswords.setText(String.valueOf(weakCount));
-                textStrongPasswords.setText(String.valueOf(strongCount));
-
-                adapter.setCredentials(vulnerableList);
+        // Tap to change a weak password. Gated by the same unlock as the Vault tab,
+        // because the edit screen shows the decrypted password.
+        adapter.setOnItemClickListener(credential -> {
+            if (requireActivity() instanceof MainActivity) {
+                MainActivity activity = (MainActivity) requireActivity();
+                activity.authenticateUser(() -> activity.openEditor(credential));
             }
         });
 
-        // Click to edit vulnerable passwords
-        adapter.setOnItemClickListener(credential -> {
-            android.content.Intent intent = new android.content.Intent(getContext(), EditCredentialActivity.class);
-            intent.putExtra("CREDENTIAL_ID", credential.getId());
-            intent.putExtra("CREDENTIAL_TITLE", credential.getTitle());
-            intent.putExtra("CREDENTIAL_USERNAME", credential.getUsername());
-            intent.putExtra("CREDENTIAL_ENCRYPTED_PW", credential.getEncryptedPassword());
-            intent.putExtra("CREDENTIAL_IV", credential.getEncryptionIv());
-            startActivity(intent);
+        VaultViewModel vaultViewModel = new ViewModelProvider(requireActivity()).get(VaultViewModel.class);
+        vaultViewModel.getAllCredentials().observe(getViewLifecycleOwner(), credentials -> {
+            // THE ILLUSION: in duress mode the vault always looks empty
+            bind(isDuressMode || credentials == null ? new ArrayList<>() : credentials);
         });
 
         return view;
     }
 
-    private void setupStandUpGreeting() {
-        if (textHeaderGreeting == null || textQuip == null) return;
-
-        // FETCH THE NAME DYNAMICALLY! Fallback to "Agent" if not found.
-        android.content.SharedPreferences prefs = requireContext().getSharedPreferences("VaultSecurityPrefs", android.content.Context.MODE_PRIVATE);
-        String firstName = prefs.getString("USER_FIRST_NAME", "Agent");
-
-        // 1. Get the time of day for the standard intro
-        Calendar c = Calendar.getInstance();
-        int timeOfDay = c.get(Calendar.HOUR_OF_DAY);
-        String timeGreeting;
-
-        if (timeOfDay >= 0 && timeOfDay < 12) {
-            timeGreeting = "Good Morning, " + firstName;
-        } else if (timeOfDay >= 12 && timeOfDay < 16) {
-            timeGreeting = "Good Afternoon, " + firstName;
-        } else if (timeOfDay >= 16 && timeOfDay < 21) {
-            timeGreeting = "Good Evening, " + firstName;
-        } else {
-            timeGreeting = "Up late, " + firstName + "?";
+    private void bind(List<Credential> credentials) {
+        int strong = 0, fair = 0, weak = 0;
+        List<Credential> needsAttention = new ArrayList<>();
+        for (Credential cred : credentials) {
+            int score = cred.getHealthScore();
+            if (score == PasswordStrength.WEAK) weak++;
+            else if (score == PasswordStrength.FAIR) fair++;
+            else strong++;
+            if (PasswordStrength.needsAttention(score)) needsAttention.add(cred);
         }
 
-        // 2. The Arsenal of Material
-        String[] securityQuips = {
-                "Treat your passwords like your toothbrush: don't share them.",
-                "'password123' is a punchline, not a key.",
-                "My password is the last 8 digits of Pi. Good luck.",
-                "Ah shit, here we go again... time to audit those credentials.",
-                "Your password is like a joke. If you have to explain it, it's not strong enough.",
-                "There are 10 types of people: those who understand binary, and those who get breached.",
-                "Dance like nobody's watching. Encrypt like everyone is.",
-                "Why did the hacker go broke? He couldn't find the cache.",
-                "Passwords are like underwear: you don't let people see it, you should change it very often, and you shouldn't share it with strangers."
-        };
+        boolean empty = credentials.isEmpty();
+        emptyState.setVisibility(empty ? View.VISIBLE : View.GONE);
+        attentionList.setVisibility(empty ? View.GONE : View.VISIBLE);
+        textAttentionTitle.setVisibility(empty ? View.GONE : View.VISIBLE);
+        textAttentionHint.setVisibility(empty ? View.GONE : View.VISIBLE);
 
-        // 3. Pick a random quip
-        Random random = new Random();
-        int randomIndex = random.nextInt(securityQuips.length);
-        String selectedQuip = securityQuips[randomIndex];
+        textTotal.setText(getResources().getQuantityString(R.plurals.home_total_logins, credentials.size(), credentials.size()));
+        balanceBar.setCounts(strong, fair, weak);
+        textStrong.setText(getString(R.string.home_count_strong, strong));
+        textFair.setText(getString(R.string.home_count_fair, fair));
+        textWeak.setText(getString(R.string.home_count_weak, weak));
+        balanceLegend.setContentDescription(getString(R.string.home_balance_description, strong, fair, weak));
 
-        // 4. Apply to the separate text views
-        textHeaderGreeting.setText(timeGreeting);
-        textQuip.setText(selectedQuip);
+        textAttentionHint.setText(needsAttention.isEmpty() ? R.string.home_all_strong : R.string.home_attention_hint);
+        adapter.setCredentials(needsAttention);
+    }
+
+    private String greeting() {
+        String firstName = requireContext()
+                .getSharedPreferences("VaultSecurityPrefs", android.content.Context.MODE_PRIVATE)
+                .getString("USER_FIRST_NAME", "")
+                .trim();
+        boolean hasName = !firstName.isEmpty();
+
+        int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+        if (hour >= 5 && hour < 12) {
+            return hasName ? getString(R.string.home_greeting_morning, firstName) : getString(R.string.home_greeting_morning_no_name);
+        } else if (hour >= 12 && hour < 17) {
+            return hasName ? getString(R.string.home_greeting_afternoon, firstName) : getString(R.string.home_greeting_afternoon_no_name);
+        }
+        return hasName ? getString(R.string.home_greeting_evening, firstName) : getString(R.string.home_greeting_evening_no_name);
     }
 }

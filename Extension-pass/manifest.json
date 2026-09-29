@@ -1,23 +1,20 @@
 {
   "manifest_version": 3,
-  "name": "Ledger Target",
-  "version": "1.0",
-  "description": "Zero-Knowledge QR Bridge for Ledger",
+  "name": "Ledger",
+  "version": "1.2",
+  "description": "Fill logins on this computer from Ledger on your phone. End-to-end encrypted.",
   "permissions": [
     "activeTab",
     "scripting"
   ],
   "host_permissions": [
-    "wss://s16271.nyc1.piesocket.com/v3/1?api_key=3lorUztBvwOhTfiMNJ4W3CAWJiCRAXEjWzwBciIS&notify_self=1"
+    "wss://*.workers.dev/*"
   ],
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' wss://*.piesocket.com;"
+    "extension_pages": "script-src 'self'; object-src 'self'; img-src 'self' data:; connect-src 'self' wss://*.workers.dev;"
   },
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Open Ledger Bridge"
-  },
-  "background": {
-    "scripts": ["config.js", "popup.js"]
+    "default_title": "Fill with Ledger"
   }
 }

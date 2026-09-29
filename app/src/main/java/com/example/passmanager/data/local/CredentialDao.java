@@ -28,4 +28,8 @@ public interface CredentialDao {
 
     @Query("SELECT * FROM credentials_table")
     java.util.List<com.example.passmanager.data.model.Credential> getAllCredentialsSync();
+
+    // Autofill unlock: load the one login the user picked (call off the main thread)
+    @Query("SELECT * FROM credentials_table WHERE id = :id LIMIT 1")
+    Credential getCredentialByIdSync(int id);
 }

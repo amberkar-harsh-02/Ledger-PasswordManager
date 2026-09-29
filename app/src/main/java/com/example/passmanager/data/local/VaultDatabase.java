@@ -49,7 +49,8 @@ public abstract class VaultDatabase extends RoomDatabase {
                                     VaultDatabase.class, "password_vault_database")
                             // 3. Add BOTH migrations so the app knows how to upgrade from any older version
                             .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
-                            .fallbackToDestructiveMigration()
+                            // No destructive fallback: a missing migration must crash loudly,
+                            // never silently wipe the user's vault.
                             .build();
                 }
             }

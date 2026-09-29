@@ -1,21 +1,22 @@
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
+# Ledger release rules (R8). Used together with proguard-android-optimize.txt and the rules
+# each library ships (Room, OkHttp, Material, AndroidX all bring their own).
 #
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+# Nothing in the app is looked up by name at runtime (no reflection, Gson or Serializable),
+# and every Activity/Service in AndroidManifest.xml is kept automatically, so no -keep rules
+# are needed for Ledger's own classes. If a release build crashes with ClassNotFoundException
+# or NoSuchMethodException, add a -keep rule for that class here.
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+# Readable crash reports: keep line numbers, but hide the original source file names.
+# Decode stack traces with the release's build/outputs/mapping/release/mapping.txt
+# (Android Studio: Build > Analyze Stack Trace, or the retrace tool).
+-keepattributes SourceFile,LineNumberTable
+-renamesourcefileattribute SourceFile
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
-
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+# Strip debug/info logging from release builds (e.g. the autofill service's scan messages),
+# so nothing about what Ledger is doing ends up in logcat. Warnings and errors stay.
+-assumenosideeffects class android.util.Log {
+    public static int v(...);
+    public static int d(...);
+    public static int i(...);
+    public static boolean isLoggable(java.lang.String, int);
+}

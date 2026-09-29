@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Shown after scanning a "Fill on computer" code, before anything is sent:
+    known computer (one tap), new computer (check words + optional remember), old extension, or a
+    code that fails verification (nothing can be sent). Filled in by MainActivity.showSendConfirmation.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingHorizontal="@dimen/space_6"
+    android:paddingBottom="@dimen/space_6">
+
+    <com.google.android.material.bottomsheet.BottomSheetDragHandleView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/confirm_icon"
+            android:layout_width="@dimen/icon_size"
+            android:layout_height="@dimen/icon_size"
+            android:importantForAccessibility="no"
+            app:srcCompat="@drawable/ic_shield" />
+
+        <TextView
+            android:id="@+id/confirm_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_3"
+            android:layout_weight="1"
+            android:accessibilityHeading="true"
+            android:textAppearance="@style/TextAppearance.Ledger.TitleLarge"
+            android:textColor="?attr/colorOnSurface"
+            tools:text="Send GitHub login to Home PC?" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/confirm_body"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_3"
+        android:textAppearance="@style/TextAppearance.Ledger.BodyMedium"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        tools:text="Only continue if these words appear in the Ledger pop-up at the top of your browser, not on the web page." />
+
+    <!-- The same three words the extension shows in its toolbar pop-up -->
+    <LinearLayout
+        android:id="@+id/confirm_words_box"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_4"
+        android:background="@drawable/bg_secret_field"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="@dimen/space_4"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/confirm_words_label"
+            android:textAppearance="@style/TextAppearance.Ledger.LabelLarge"
+            android:textColor="?attr/colorOnSurfaceVariant" />
+
+        <TextView
+            android:id="@+id/confirm_words"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_1"
+            android:gravity="center"
+            android:textAppearance="@style/TextAppearance.Ledger.SecretSmall"
+            android:textColor="?attr/colorOnSurface"
+            tools:text="maple · river · anchor" />
+    </LinearLayout>
+
+    <!-- New computer only: remember it so next time is one tap (off by default for shared PCs) -->
+    <LinearLayout
+        android:id="@+id/confirm_remember_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_4"
+        android:background="?attr/selectableItemBackground"
+        android:gravity="center_vertical"
+        android:minHeight="@dimen/touch_target"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/confirm_remember"
+                android:textAppearance="@style/TextAppearance.Ledger.BodyLarge"
+                android:textColor="?attr/colorOnSurface" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/confirm_remember_summary"
+                android:textAppearance="@style/TextAppearance.Ledger.BodyMedium"
+                android:textColor="?attr/colorOnSurfaceVariant" />
+        </LinearLayout>
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/confirm_remember"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_3"
+            android:contentDescription="@string/confirm_remember" />
+    </LinearLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/confirm_name_layout"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_2"
+        android:hint="@string/confirm_name_hint"
+        android:visibility="gone">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/confirm_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:importantForAutofill="no"
+            android:inputType="textCapWords"
+            android:maxLines="1" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/confirm_send"
+        style="@style/Widget.Material3.Button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_6"
+        android:minHeight="56dp"
+        tools:text="Send" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/confirm_cancel"
+        style="@style/Widget.Material3.Button.TextButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_1"
+        android:text="@string/action_cancel" />
+</LinearLayout>

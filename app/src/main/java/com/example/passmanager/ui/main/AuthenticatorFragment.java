@@ -1,5 +1,8 @@
 package com.example.passmanager.ui.main;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -8,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,9 +23,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.passmanager.R;
 import com.example.passmanager.data.model.Credential;
+import com.example.passmanager.security.TotpEngine;
+import com.example.passmanager.security.TotpSecretCodec;
 import com.example.passmanager.ui.viewmodel.VaultViewModel;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.divider.MaterialDividerItemDecoration;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.textfield.MaterialAutoCompleteTextView;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +39,6 @@ public class AuthenticatorFragment extends Fragment {
 
     private VaultViewModel vaultViewModel;
     private AuthenticatorAdapter adapter;
-    private TextView textEmpty;
     private List<Credential> allVaultCredentials = new ArrayList<>();
 
     // The Master Clock
@@ -54,14 +60,19 @@ public class AuthenticatorFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_authenticator, container, false);
 
-        textEmpty = view.findViewById(R.id.text_empty_auth);
         RecyclerView recyclerView = view.findViewById(R.id.recycler_authenticator);
+        View emptyState = view.findViewById(R.id.empty_codes);
+        TextView emptyBody = view.findViewById(R.id.text_empty_auth);
+        View hint = view.findViewById(R.id.text_codes_hint);
         FloatingActionButton fabAdd = view.findViewById(R.id.fab_add_auth);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
         adapter = new AuthenticatorAdapter(requireContext());
         recyclerView.setAdapter(adapter);
+        MaterialDividerItemDecoration divider = new MaterialDividerItemDecoration(requireContext(), LinearLayoutManager.VERTICAL);
+        divider.setDividerInsetStart(getResources().getDimensionPixelSize(R.dimen.list_divider_inset));
+        divider.setLastItemDecorated(false);
+        recyclerView.addItemDecoration(divider);
 
         // --- DURESS MODE CHECK ---
         boolean isDuressMode = requireActivity().getIntent().getBooleanExtra("IS_DURESS_MODE", false);
@@ -75,95 +86,111 @@ public class AuthenticatorFragment extends Fragment {
 
         // 1. Observe the Vault and Filter for 2FA Codes
         vaultViewModel.getAllCredentials().observe(getViewLifecycleOwner(), credentials -> {
+            List<Credential> authList = new ArrayList<>();
 
-            // THE DURESS INTERCEPTOR: If compromised, force the list to be empty and break out early
-            if (isDuressMode) {
-                adapter.setCredentials(new ArrayList<>());
-                textEmpty.setVisibility(View.VISIBLE);
-                textEmpty.setText("No 2FA Codes Configured.\n\nYour vault is currently empty."); // Slightly stealthier text
-                return;
-            }
-
-            // STANDARD OPERATION: Load the real keys
-            if (credentials != null) {
-                allVaultCredentials = credentials; // Keep a copy of everything for the "Add" menu
-
-                List<Credential> authList = new ArrayList<>();
+            // THE DURESS INTERCEPTOR: If compromised, the list is always empty
+            if (!isDuressMode && credentials != null) {
+                allVaultCredentials = credentials; // Keep a copy of everything for the "Link" sheet
                 for (Credential cred : credentials) {
                     if (cred.getTotpSecret() != null && !cred.getTotpSecret().trim().isEmpty()) {
                         authList.add(cred);
                     }
                 }
-
-                adapter.setCredentials(authList);
-                textEmpty.setVisibility(authList.isEmpty() ? View.VISIBLE : View.GONE);
-
-                // Ensure default text is set if not under duress
-                if (authList.isEmpty()) {
-                    textEmpty.setText("No 2FA Codes Configured\n\nTap + to link an account.");
-                }
             }
+
+            adapter.setCredentials(authList);
+            boolean empty = authList.isEmpty();
+            recyclerView.setVisibility(empty ? View.GONE : View.VISIBLE);
+            hint.setVisibility(empty ? View.GONE : View.VISIBLE);
+            emptyState.setVisibility(empty ? View.VISIBLE : View.GONE);
+            emptyBody.setText(isDuressMode ? R.string.codes_empty_body_duress : R.string.codes_empty_body);
         });
 
         // 2. The Link Button
-        fabAdd.setOnClickListener(v -> showLinkAuthenticatorDialog());
+        fabAdd.setOnClickListener(v -> showLinkSheet());
 
         return view;
     }
 
-    private void showLinkAuthenticatorDialog() {
+    // "Link a 2FA code": choose a login without a code, paste the website's Base32 secret
+    private void showLinkSheet() {
         // Find accounts that DON'T have a 2FA code yet
         List<Credential> eligibleAccounts = new ArrayList<>();
         List<String> accountNames = new ArrayList<>();
-
         for (Credential c : allVaultCredentials) {
             if (c.getTotpSecret() == null || c.getTotpSecret().trim().isEmpty()) {
                 eligibleAccounts.add(c);
-                accountNames.add(c.getTitle() + " (" + c.getUsername() + ")");
+                String username = c.getUsername() != null && !c.getUsername().isEmpty() ? " (" + c.getUsername() + ")" : "";
+                accountNames.add(c.getTitle() + username);
             }
         }
 
         if (eligibleAccounts.isEmpty()) {
-            Toast.makeText(getContext(), "All your vault accounts already have 2FA linked, or your vault is empty!", Toast.LENGTH_LONG).show();
+            Messages.showLong(getContext(), R.string.codes_nothing_to_link);
             return;
         }
 
-        // Build a custom view for the Dialog
-        android.widget.LinearLayout layout = new android.widget.LinearLayout(requireContext());
-        layout.setOrientation(android.widget.LinearLayout.VERTICAL);
-        layout.setPadding(50, 40, 50, 10);
+        BottomSheetDialog sheet = new BottomSheetDialog(requireContext());
+        View content = getLayoutInflater().inflate(R.layout.bottom_sheet_link_2fa, null);
+        sheet.setContentView(content);
+        // The secret key is visible while typing; keep it out of screenshots and recents
+        com.example.passmanager.security.ScreenPrivacy.apply(sheet);
 
-        Spinner spinner = new Spinner(requireContext());
-        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_dropdown_item, accountNames);
-        spinner.setAdapter(spinnerAdapter);
-        layout.addView(spinner);
+        TextInputLayout accountLayout = content.findViewById(R.id.layout_link_account);
+        MaterialAutoCompleteTextView accountInput = content.findViewById(R.id.input_link_account);
+        TextInputLayout secretLayout = content.findViewById(R.id.layout_link_secret);
+        EditText secretInput = content.findViewById(R.id.input_link_secret);
 
-        EditText secretInput = new EditText(requireContext());
-        secretInput.setHint("Paste Base32 Secret Key");
-        secretInput.setSingleLine();
-        layout.addView(secretInput);
+        accountInput.setSimpleItems(accountNames.toArray(new String[0]));
+        final int[] selected = {eligibleAccounts.size() == 1 ? 0 : -1};
+        if (selected[0] == 0) accountInput.setText(accountNames.get(0), false);
+        accountInput.setOnItemClickListener((parent, v, position, id) -> {
+            selected[0] = position;
+            accountLayout.setError(null);
+        });
 
-        new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Link Authenticator")
-                .setMessage("Select an account from your vault and paste the secret key provided by the website.")
-                .setView(layout)
-                .setPositiveButton("Link to Vault", (dialog, which) -> {
-                    String secret = secretInput.getText().toString().trim();
-                    if (secret.isEmpty()) {
-                        Toast.makeText(getContext(), "Secret key cannot be empty", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
+        // Paste button inside the secret field
+        secretLayout.setEndIconOnClickListener(v -> {
+            ClipboardManager clipboard = (ClipboardManager) requireContext().getSystemService(Context.CLIPBOARD_SERVICE);
+            ClipData clip = clipboard != null ? clipboard.getPrimaryClip() : null;
+            if (clip != null && clip.getItemCount() > 0 && clip.getItemAt(0).getText() != null) {
+                secretInput.setText(clip.getItemAt(0).getText().toString().trim());
+                secretInput.setSelection(secretInput.length());
+            }
+        });
+        secretInput.addTextChangedListener(new android.text.TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) { secretLayout.setError(null); }
+            @Override public void afterTextChanged(android.text.Editable s) {}
+        });
 
-                    // Grab the selected account and update it!
-                    int selectedIndex = spinner.getSelectedItemPosition();
-                    Credential targetCred = eligibleAccounts.get(selectedIndex);
-                    targetCred.setTotpSecret(secret);
+        content.findViewById(R.id.btn_link_confirm).setOnClickListener(v -> {
+            String secret = secretInput.getText().toString().trim();
+            boolean ok = true;
+            if (selected[0] < 0) {
+                accountLayout.setError(getString(R.string.codes_link_pick_account));
+                ok = false;
+            }
+            if (!TotpEngine.isValidSecret(secret)) {
+                secretLayout.setError(getString(R.string.codes_link_invalid));
+                ok = false;
+            }
+            if (!ok) return;
 
-                    vaultViewModel.update(targetCred);
-                    Toast.makeText(getContext(), "Authenticator Linked!", Toast.LENGTH_SHORT).show();
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
+            Credential targetCred = eligibleAccounts.get(selected[0]);
+            try {
+                targetCred.setTotpSecret(TotpSecretCodec.seal(secret)); // Encrypted at rest
+            } catch (Exception e) {
+                Messages.showLong(getContext(), R.string.error_encrypt);
+                return;
+            }
+
+            vaultViewModel.update(targetCred);
+            Messages.show(getContext(), getString(R.string.codes_linked, targetCred.getTitle()));
+            sheet.dismiss();
+        });
+
+        sheet.show();
     }
 
     // --- MANAGE THE CLOCK LIFECYCLE ---

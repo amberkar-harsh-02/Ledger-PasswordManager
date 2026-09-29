@@ -1,72 +1,119 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- PIN lock / PIN setup. The only centered screen in the app. -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:background="@color/vault_background">
-
-    <ImageView
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:src="@android:drawable/ic_lock_idle_lock"
-        app:tint="@color/vault_accent"
-        android:layout_marginBottom="16dp"/>
-
-    <TextView
-        android:id="@+id/text_lock_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Enter Master PIN"
-        android:textColor="@color/vault_text_primary"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="8dp"/>
-
-    <TextView
-        android:id="@+id/text_lock_subtitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Enter your 4-digit PIN to access Ledger"
-        android:textColor="@color/vault_text_secondary"
-        android:textSize="14sp"
-        android:layout_marginBottom="32dp"/>
+    android:fillViewport="true"
+    android:fitsSystemWindows="true">
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginBottom="48dp">
-        <ImageView android:id="@+id/dot_1" android:layout_width="24dp" android:layout_height="24dp" android:layout_margin="8dp" android:src="@android:drawable/presence_invisible" app:tint="@color/vault_text_secondary"/>
-        <ImageView android:id="@+id/dot_2" android:layout_width="24dp" android:layout_height="24dp" android:layout_margin="8dp" android:src="@android:drawable/presence_invisible" app:tint="@color/vault_text_secondary"/>
-        <ImageView android:id="@+id/dot_3" android:layout_width="24dp" android:layout_height="24dp" android:layout_margin="8dp" android:src="@android:drawable/presence_invisible" app:tint="@color/vault_text_secondary"/>
-        <ImageView android:id="@+id/dot_4" android:layout_width="24dp" android:layout_height="24dp" android:layout_margin="8dp" android:src="@android:drawable/presence_invisible" app:tint="@color/vault_text_secondary"/>
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingHorizontal="@dimen/space_6"
+        android:paddingVertical="@dimen/space_8">
+
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:importantForAccessibility="no"
+            app:srcCompat="@drawable/ic_lock"
+            app:tint="?attr/colorPrimary" />
+
+        <TextView
+            android:id="@+id/text_lock_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_4"
+            android:accessibilityHeading="true"
+            android:gravity="center"
+            android:text="@string/lock_title_unlock"
+            android:textAppearance="@style/TextAppearance.Ledger.HeadlineSmall"
+            android:textColor="?attr/colorOnSurface" />
+
+        <!-- Instructions, and errors (wrong PIN, lockout) in the error color. Read out when it changes. -->
+        <TextView
+            android:id="@+id/text_lock_subtitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_2"
+            android:accessibilityLiveRegion="polite"
+            android:gravity="center"
+            android:minLines="2"
+            android:text="@string/lock_subtitle_unlock"
+            android:textAppearance="@style/TextAppearance.Ledger.BodyMedium"
+            android:textColor="?attr/colorOnSurfaceVariant" />
+
+        <LinearLayout
+            android:id="@+id/pin_dots"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_6"
+            android:layout_marginBottom="@dimen/space_8"
+            android:accessibilityLiveRegion="polite"
+            android:focusable="true"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/dot_1"
+                style="@style/Widget.Ledger.PinDot"
+                android:importantForAccessibility="no" />
+
+            <ImageView
+                android:id="@+id/dot_2"
+                style="@style/Widget.Ledger.PinDot"
+                android:importantForAccessibility="no" />
+
+            <ImageView
+                android:id="@+id/dot_3"
+                style="@style/Widget.Ledger.PinDot"
+                android:importantForAccessibility="no" />
+
+            <ImageView
+                android:id="@+id/dot_4"
+                style="@style/Widget.Ledger.PinDot"
+                android:importantForAccessibility="no" />
+        </LinearLayout>
+
+        <GridLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:columnCount="3"
+            android:rowCount="4"
+            android:useDefaultMargins="false"
+            tools:ignore="HardcodedText">
+            <!-- Key labels are the digits the code reads back; they are not translated -->
+
+            <Button android:id="@+id/btn_1" style="@style/Widget.Ledger.KeypadKey" android:text="1" />
+            <Button android:id="@+id/btn_2" style="@style/Widget.Ledger.KeypadKey" android:text="2" />
+            <Button android:id="@+id/btn_3" style="@style/Widget.Ledger.KeypadKey" android:text="3" />
+
+            <Button android:id="@+id/btn_4" style="@style/Widget.Ledger.KeypadKey" android:text="4" />
+            <Button android:id="@+id/btn_5" style="@style/Widget.Ledger.KeypadKey" android:text="5" />
+            <Button android:id="@+id/btn_6" style="@style/Widget.Ledger.KeypadKey" android:text="6" />
+
+            <Button android:id="@+id/btn_7" style="@style/Widget.Ledger.KeypadKey" android:text="7" />
+            <Button android:id="@+id/btn_8" style="@style/Widget.Ledger.KeypadKey" android:text="8" />
+            <Button android:id="@+id/btn_9" style="@style/Widget.Ledger.KeypadKey" android:text="9" />
+
+            <Button
+                android:id="@+id/btn_fingerprint"
+                style="@style/Widget.Ledger.KeypadIconKey"
+                android:contentDescription="@string/lock_use_fingerprint"
+                app:icon="@drawable/ic_fingerprint"
+                app:iconTint="?attr/colorPrimary" />
+
+            <Button android:id="@+id/btn_0" style="@style/Widget.Ledger.KeypadKey" android:text="0" />
+
+            <Button
+                android:id="@+id/btn_backspace"
+                style="@style/Widget.Ledger.KeypadIconKey"
+                android:contentDescription="@string/lock_delete_digit"
+                app:icon="@drawable/ic_backspace"
+                app:iconTint="?attr/colorOnSurfaceVariant" />
+        </GridLayout>
     </LinearLayout>
-
-    <GridLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:columnCount="3"
-        android:rowCount="4"
-        android:alignmentMode="alignMargins"
-        android:columnOrderPreserved="false">
-
-        <Button android:id="@+id/btn_1" style="@style/Widget.MaterialComponents.Button.TextButton" android:layout_width="80dp" android:layout_height="80dp" android:text="1" android:textSize="28sp" android:textColor="@color/vault_text_primary"/>
-        <Button android:id="@+id/btn_2" style="@style/Widget.MaterialComponents.Button.TextButton" android:layout_width="80dp" android:layout_height="80dp" android:text="2" android:textSize="28sp" android:textColor="@color/vault_text_primary"/>
-        <Button android:id="@+id/btn_3" style="@style/Widget.MaterialComponents.Button.TextButton" android:layout_width="80dp" android:layout_height="80dp" android:text="3" android:textSize="28sp" android:textColor="@color/vault_text_primary"/>
-
-        <Button android:id="@+id/btn_4" style="@style/Widget.MaterialComponents.Button.TextButton" android:layout_width="80dp" android:layout_height="80dp" android:text="4" android:textSize="28sp" android:textColor="@color/vault_text_primary"/>
-        <Button android:id="@+id/btn_5" style="@style/Widget.MaterialComponents.Button.TextButton" android:layout_width="80dp" android:layout_height="80dp" android:text="5" android:textSize="28sp" android:textColor="@color/vault_text_primary"/>
-        <Button android:id="@+id/btn_6" style="@style/Widget.MaterialComponents.Button.TextButton" android:layout_width="80dp" android:layout_height="80dp" android:text="6" android:textSize="28sp" android:textColor="@color/vault_text_primary"/>
-
-        <Button android:id="@+id/btn_7" style="@style/Widget.MaterialComponents.Button.TextButton" android:layout_width="80dp" android:layout_height="80dp" android:text="7" android:textSize="28sp" android:textColor="@color/vault_text_primary"/>
-        <Button android:id="@+id/btn_8" style="@style/Widget.MaterialComponents.Button.TextButton" android:layout_width="80dp" android:layout_height="80dp" android:text="8" android:textSize="28sp" android:textColor="@color/vault_text_primary"/>
-        <Button android:id="@+id/btn_9" style="@style/Widget.MaterialComponents.Button.TextButton" android:layout_width="80dp" android:layout_height="80dp" android:text="9" android:textSize="28sp" android:textColor="@color/vault_text_primary"/>
-
-        <ImageButton android:id="@+id/btn_fingerprint" android:layout_width="80dp" android:layout_height="80dp" android:background="?attr/selectableItemBackgroundBorderless" android:src="@android:drawable/ic_secure" app:tint="@color/vault_accent"/>
-        <Button android:id="@+id/btn_0" style="@style/Widget.MaterialComponents.Button.TextButton" android:layout_width="80dp" android:layout_height="80dp" android:text="0" android:textSize="28sp" android:textColor="@color/vault_text_primary"/>
-        <ImageButton android:id="@+id/btn_backspace" android:layout_width="80dp" android:layout_height="80dp" android:background="?attr/selectableItemBackgroundBorderless" android:src="@android:drawable/ic_input_delete" app:tint="@color/vault_text_secondary"/>
-
-    </GridLayout>
-</LinearLayout>
+</ScrollView>

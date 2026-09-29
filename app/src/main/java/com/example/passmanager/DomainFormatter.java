@@ -5,7 +5,8 @@ public class DomainFormatter {
     public static String formatWebsiteName(String rawDomain) {
         if (rawDomain == null || rawDomain.isEmpty()) return "Unknown Site";
 
-        String clean = rawDomain.toLowerCase().trim();
+        // Locale.ROOT: domains are ASCII; a Turkish phone would otherwise turn "I" into dotless "ı"
+        String clean = rawDomain.toLowerCase(java.util.Locale.ROOT).trim();
 
         // 1. Strip the web protocols and paths
         clean = clean.replace("https://", "").replace("http://", "");
@@ -34,7 +35,7 @@ public class DomainFormatter {
 
         // 4. Capitalize the first letter for the Vault UI
         if (mainWord.length() > 0) {
-            return mainWord.substring(0, 1).toUpperCase() + mainWord.substring(1);
+            return mainWord.substring(0, 1).toUpperCase(java.util.Locale.ROOT) + mainWord.substring(1);
         }
 
         return rawDomain;

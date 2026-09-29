@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Ledger type scale: the Material 3 scale in the system face (Roboto), sentence case,
+    plus one "Secret" style for PINs, 2FA codes and revealed passwords.
+    Use these instead of setting textSize / textStyle by hand.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="UnusedResources">
+    <!-- Full Material 3 scale on purpose; some roles are not used yet -->
+    <style name="TextAppearance.Ledger.DisplaySmall" parent="TextAppearance.Material3.DisplaySmall" />
+
+    <style name="TextAppearance.Ledger.HeadlineLarge" parent="TextAppearance.Material3.HeadlineLarge" />
+    <style name="TextAppearance.Ledger.HeadlineMedium" parent="TextAppearance.Material3.HeadlineMedium" />
+    <style name="TextAppearance.Ledger.HeadlineSmall" parent="TextAppearance.Material3.HeadlineSmall" />
+
+    <style name="TextAppearance.Ledger.TitleLarge" parent="TextAppearance.Material3.TitleLarge" />
+    <style name="TextAppearance.Ledger.TitleMedium" parent="TextAppearance.Material3.TitleMedium" />
+    <style name="TextAppearance.Ledger.TitleSmall" parent="TextAppearance.Material3.TitleSmall" />
+
+    <style name="TextAppearance.Ledger.BodyLarge" parent="TextAppearance.Material3.BodyLarge" />
+    <style name="TextAppearance.Ledger.BodyMedium" parent="TextAppearance.Material3.BodyMedium" />
+    <style name="TextAppearance.Ledger.BodySmall" parent="TextAppearance.Material3.BodySmall" />
+
+    <style name="TextAppearance.Ledger.LabelLarge" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:textAllCaps">false</item>
+    </style>
+    <style name="TextAppearance.Ledger.LabelMedium" parent="TextAppearance.Material3.LabelMedium">
+        <item name="android:textAllCaps">false</item>
+    </style>
+    <style name="TextAppearance.Ledger.LabelSmall" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <!-- Counts and figures that sit in columns (e.g. the vault balance) -->
+    <style name="TextAppearance.Ledger.Figure" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:fontFeatureSettings">tnum</item>
+    </style>
+
+    <!-- Secrets: 2FA codes, revealed passwords. Tabular digits so codes don't shift as they change. -->
+    <style name="TextAppearance.Ledger.Secret" parent="TextAppearance.Material3.HeadlineMedium">
+        <item name="android:fontFamily">@font/ledger_secret</item>
+        <item name="fontFamily">@font/ledger_secret</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:fontFeatureSettings">tnum</item>
+        <item name="android:letterSpacing">0.04</item>
+    </style>
+
+    <style name="TextAppearance.Ledger.SecretSmall" parent="TextAppearance.Ledger.Secret">
+        <item name="android:textSize">18sp</item>
+        <item name="android:lineHeight">24sp</item>
+        <item name="lineHeight">24sp</item>
+    </style>
+
+    <!-- PIN keypad digits -->
+    <style name="TextAppearance.Ledger.Keypad" parent="TextAppearance.Material3.HeadlineMedium">
+        <item name="android:fontFamily">@font/ledger_secret</item>
+        <item name="fontFamily">@font/ledger_secret</item>
+        <item name="android:fontFeatureSettings">tnum</item>
+    </style>
+</resources>

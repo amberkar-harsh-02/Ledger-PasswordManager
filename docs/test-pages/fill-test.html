@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ledger fill test</title>
+<style>
+  body { font: 15px/1.5 system-ui, sans-serif; max-width: 520px; margin: 32px auto; padding: 0 16px; }
+  form { border: 1px solid #ccc; border-radius: 8px; padding: 16px; margin: 16px 0; }
+  label { display: block; margin-top: 8px; }
+  input { width: 100%; padding: 6px; box-sizing: border-box; }
+  #result { white-space: pre; background: #f4f4f4; padding: 12px; border-radius: 8px; }
+  .offscreen { position: absolute; left: -9999px; }
+  .clipped { position: absolute; clip: rect(0 0 0 0); width: 1px; height: 1px; overflow: hidden; }
+</style>
+</head>
+<body>
+<h1>Ledger fill test</h1>
+<p>Open this page from a local web server (e.g. <code>npx serve docs/test-pages</code>),
+fill with Ledger, then press <b>Check</b>. Every line should say OK.</p>
+
+<!-- Honeypots outside any form -->
+<input type="password" id="hp-display" style="display:none">
+<input type="password" id="hp-offscreen" class="offscreen">
+
+<form id="login" onsubmit="return false">
+  <h2>Sign in</h2>
+  <!-- Decoys inside the real form -->
+  <input type="text" id="hp-user" style="visibility:hidden; position:absolute">
+  <input type="password" id="hp-opacity" style="opacity:0; position:absolute">
+  <input type="password" id="hp-tiny" style="width:1px; height:1px; padding:0; border:0">
+  <input type="password" id="hp-clipped" class="clipped">
+  <div hidden><input type="password" id="hp-hidden-attr"></div>
+  <div aria-hidden="true" style="position:absolute; left:-500px"><input type="password" id="hp-aria"></div>
+
+  <label>Email <input type="email" id="user" autocomplete="username"></label>
+  <label>Password <input type="password" id="pass" autocomplete="current-password"></label>
+</form>
+
+<form id="other" onsubmit="return false">
+  <h2>Unrelated form (must stay empty)</h2>
+  <label>Wi-Fi password <input type="password" id="other-pass"></label>
+</form>
+
+<button id="check">Check</button>
+<div id="result"></div>
+
+<script>
+  const mustFill = ['user', 'pass'];
+  const mustStayEmpty = ['hp-display', 'hp-offscreen', 'hp-user', 'hp-opacity', 'hp-tiny',
+    'hp-clipped', 'hp-hidden-attr', 'hp-aria', 'other-pass'];
+  document.getElementById('check').onclick = () => {
+    const lines = [];
+    for (const id of mustFill) {
+      lines.push((document.getElementById(id).value ? 'OK   ' : 'FAIL ') + id + ' filled');
+    }
+    for (const id of mustStayEmpty) {
+      lines.push((document.getElementById(id).value ? 'FAIL ' : 'OK   ') + id + ' empty');
+    }
+    document.getElementById('result').textContent = lines.join('\n');
+  };
+</script>
+</body>
+</html>

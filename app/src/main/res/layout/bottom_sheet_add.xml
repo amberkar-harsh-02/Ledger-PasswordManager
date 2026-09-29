@@ -1,107 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- "Add a login" choices, opened from the Vault FAB -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:paddingTop="16dp"
-    android:paddingBottom="24dp"
-    android:background="?android:attr/colorBackground">
+    android:paddingBottom="@dimen/space_4">
 
-    <View
-        android:layout_width="40dp"
-        android:layout_height="4dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="16dp"
-        android:background="#D3D3D3" />
+    <com.google.android.material.bottomsheet.BottomSheetDragHandleView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Add Credential"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:paddingStart="24dp"
-        android:paddingEnd="24dp"
-        android:layout_marginBottom="16dp"/>
+        android:layout_marginBottom="@dimen/space_2"
+        android:accessibilityHeading="true"
+        android:paddingHorizontal="@dimen/space_6"
+        android:text="@string/add_sheet_title"
+        android:textAppearance="@style/TextAppearance.Ledger.TitleLarge"
+        android:textColor="?attr/colorOnSurface" />
 
     <LinearLayout
         android:id="@+id/btn_manual_entry"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:clickable="true"
-        android:focusable="true"
-        android:background="?attr/selectableItemBackground"
-        android:padding="20dp"
-        android:gravity="center_vertical">
+        style="@style/Widget.Ledger.SheetRow">
 
-        <TextView
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:text="⌨️"
-            android:textSize="24sp"
-            android:gravity="center" />
+        <ImageView
+            style="@style/Widget.Ledger.SheetRowIcon"
+            android:importantForAccessibility="no"
+            app:srcCompat="@drawable/ic_edit" />
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginStart="16dp">
+            android:layout_marginStart="@dimen/space_4"
+            android:layout_weight="1"
+            android:orientation="vertical">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Manual Entry"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:text="@string/add_sheet_manual_title"
+                android:textAppearance="@style/TextAppearance.Ledger.TitleMedium"
+                android:textColor="?attr/colorOnSurface" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Type an existing password into your vault"
-                android:textSize="14sp"
-                android:textColor="#808080" />
+                android:text="@string/add_sheet_manual_body"
+                android:textAppearance="@style/TextAppearance.Ledger.BodyMedium"
+                android:textColor="?attr/colorOnSurfaceVariant" />
         </LinearLayout>
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/btn_generate_inject"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:clickable="true"
-        android:focusable="true"
-        android:background="?attr/selectableItemBackground"
-        android:padding="20dp"
-        android:gravity="center_vertical">
+        style="@style/Widget.Ledger.SheetRow">
 
-        <TextView
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:text="🛡️"
-            android:textSize="24sp"
-            android:gravity="center" />
+        <ImageView
+            style="@style/Widget.Ledger.SheetRowIcon"
+            android:importantForAccessibility="no"
+            app:srcCompat="@drawable/ic_qr_code_scanner" />
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginStart="16dp">
+            android:layout_marginStart="@dimen/space_4"
+            android:layout_weight="1"
+            android:orientation="vertical">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Generate &amp; Inject"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:text="@string/add_sheet_new_title"
+                android:textAppearance="@style/TextAppearance.Ledger.TitleMedium"
+                android:textColor="?attr/colorOnSurface" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Scan your PC to create and inject a new account"
-                android:textSize="14sp"
-                android:textColor="#808080" />
+                android:text="@string/add_sheet_new_body"
+                android:textAppearance="@style/TextAppearance.Ledger.BodyMedium"
+                android:textColor="?attr/colorOnSurfaceVariant" />
         </LinearLayout>
     </LinearLayout>
-
 </LinearLayout>

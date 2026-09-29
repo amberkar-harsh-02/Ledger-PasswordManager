@@ -27,7 +27,7 @@ public class QRCodeHelper {
             }
             return bitmap;
         } catch (WriterException e) {
-            e.printStackTrace();
+            android.util.Log.e("QRCodeHelper", "QR encoding failed", e);
             return null;
         }
     }

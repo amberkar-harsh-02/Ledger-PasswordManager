@@ -13,4 +13,22 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Machine- and user-specific IDE files (device lists, local paths, assistant settings)
+/.idea/deploymentTargetSelector.xml
+/.idea/deviceManager.xml
+/.idea/studiobot.xml
+/.idea/appInsightsSettings.xml
+/.idea/markdown.xml
+
+# Local config with your relay address; copy config.example.js to config.js
 /Extension-pass/config.js
+
+# Build outputs and signing material: never commit these
+*.apk
+*.aab
+*.jks
+*.keystore
+keystore.properties
+/app/release/
+*.zip

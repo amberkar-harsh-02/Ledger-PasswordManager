@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- "Needs attention" role (weak or reused passwords). Kept apart from colorError,
+         which is reserved for things that actually failed. -->
+    <attr name="colorAttention" format="color" />
+    <attr name="colorOnAttention" format="color" />
+    <attr name="colorAttentionContainer" format="color" />
+    <attr name="colorOnAttentionContainer" format="color" />
+</resources>

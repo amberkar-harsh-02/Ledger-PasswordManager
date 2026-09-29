@@ -1,93 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<!--
+    2FA row: monogram, login, the code in the Secret face, and a countdown ring around the
+    show/copy button. The whole row is the tap target; the ring turns amber in the last 5 seconds.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/row_auth"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="16dp"
-    android:layout_marginVertical="8dp"
-    app:cardBackgroundColor="@color/vault_surface"
-    app:cardCornerRadius="12dp"
-    app:strokeWidth="0dp">
+    android:background="?attr/selectableItemBackground"
+    android:gravity="center_vertical"
+    android:minHeight="88dp"
+    android:orientation="horizontal"
+    android:paddingHorizontal="@dimen/screen_margin"
+    android:paddingVertical="@dimen/space_3">
+
+    <TextView
+        android:id="@+id/text_auth_monogram"
+        style="@style/Widget.Ledger.Monogram"
+        android:importantForAccessibility="no"
+        tools:text="G" />
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="16dp"
-        android:gravity="center_vertical">
+        android:layout_marginStart="@dimen/space_4"
+        android:layout_marginEnd="@dimen/space_3"
+        android:layout_weight="1"
+        android:importantForAccessibility="no"
+        android:orientation="vertical">
 
         <TextView
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="@drawable/circle_background"
-            android:gravity="center"
-            android:text="🛡️"
-            android:textSize="20sp"
-            android:layout_marginEnd="16dp"/>
-
-        <LinearLayout
-            android:layout_width="0dp"
+            android:id="@+id/text_auth_title"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.Ledger.TitleSmall"
+            android:textColor="?attr/colorOnSurface"
+            tools:text="GitHub" />
 
-            <TextView
-                android:id="@+id/text_auth_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Google"
-                android:textColor="@color/vault_text_primary"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+        <TextView
+            android:id="@+id/text_auth_username"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.Ledger.BodySmall"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            tools:text="harsh@example.com" />
 
-            <TextView
-                android:id="@+id/text_auth_username"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="user@email.com"
-                android:textColor="@color/vault_text_secondary"
-                android:textSize="14sp" />
-
-            <TextView
-                android:id="@+id/text_auth_code"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="••• •••"
-                android:textColor="@color/vault_accent"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                android:letterSpacing="0.1"/>
-        </LinearLayout>
-
-        <FrameLayout
-            android:id="@+id/btn_reveal_code"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:background="?attr/selectableItemBackgroundBorderless">
-
-            <com.google.android.material.progressindicator.CircularProgressIndicator
-                android:id="@+id/progress_auth_timer"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                app:indicatorColor="@color/vault_accent"
-                app:trackColor="#333333"
-                app:trackThickness="3dp"
-                android:max="30"
-                android:progress="30" />
-
-            <ImageView
-                android:id="@+id/icon_auth_action"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_gravity="center"
-                android:src="@android:drawable/ic_menu_view"
-                app:tint="@color/vault_text_primary" />
-        </FrameLayout>
-
+        <TextView
+            android:id="@+id/text_auth_code"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_1"
+            android:textAppearance="@style/TextAppearance.Ledger.Secret"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            tools:text="482 913" />
     </LinearLayout>
-</com.google.android.material.card.MaterialCardView>
+
+    <FrameLayout
+        android:id="@+id/btn_reveal_code"
+        android:layout_width="@dimen/touch_target"
+        android:layout_height="@dimen/touch_target"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:focusable="true">
+
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/progress_auth_timer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:importantForAccessibility="no"
+            android:max="30"
+            android:progress="30"
+            app:indicatorColor="?attr/colorPrimary"
+            app:indicatorSize="44dp"
+            app:trackColor="?attr/colorSurfaceContainerHighest"
+            app:trackCornerRadius="2dp"
+            app:trackThickness="3dp" />
+
+        <ImageView
+            android:id="@+id/icon_auth_action"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center"
+            android:importantForAccessibility="no"
+            app:srcCompat="@drawable/ic_visibility"
+            app:tint="?attr/colorOnSurfaceVariant" />
+    </FrameLayout>
+</LinearLayout>

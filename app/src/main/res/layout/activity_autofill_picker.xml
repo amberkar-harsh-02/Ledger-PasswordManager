@@ -1,25 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- "Search Ledger" picker: a floating sheet listing every login, in the same rows as the Vault tab -->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="16dp"
-    android:background="#1E1E1E">
+    android:paddingTop="@dimen/space_6"
+    android:paddingBottom="@dimen/space_2">
 
     <TextView
-        android:layout_width="wrap_content"
+        android:id="@+id/picker_title"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Select an Account"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:textColor="#00FF00"
-        android:layout_marginBottom="16dp"/>
+        android:layout_marginHorizontal="@dimen/space_6"
+        android:accessibilityHeading="true"
+        android:text="@string/picker_title"
+        android:textAppearance="@style/TextAppearance.Ledger.HeadlineSmall"
+        android:textColor="?attr/colorOnSurface"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <ListView
-        android:id="@+id/pickerListView"
-        android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:divider="#333333"
-        android:dividerHeight="1dp" />
+    <TextView
+        android:id="@+id/picker_body"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/space_6"
+        android:layout_marginTop="@dimen/space_2"
+        android:text="@string/picker_body_generic"
+        android:textAppearance="@style/TextAppearance.Ledger.BodyMedium"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/picker_title" />
 
-</LinearLayout>
+    <!-- Grows with the list up to 420dp, then scrolls -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/picker_list"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_4"
+        app:layout_constrainedHeight="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_max="420dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/picker_body"
+        app:layout_constraintVertical_bias="0" />
+
+    <TextView
+        android:id="@+id/picker_empty"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/space_6"
+        android:layout_marginVertical="@dimen/space_6"
+        android:text="@string/picker_empty"
+        android:textAppearance="@style/TextAppearance.Ledger.BodyLarge"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/picker_body" />
+</androidx.constraintlayout.widget.ConstraintLayout>

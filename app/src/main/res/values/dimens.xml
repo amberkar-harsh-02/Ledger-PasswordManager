@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ledger spacing and shape tokens (4dp base, 8dp rhythm). Use these instead of raw dp values. -->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="UnusedResources">
+    <!-- Full token scale on purpose; some steps are not used yet -->
+    <dimen name="space_1">4dp</dimen>
+    <dimen name="space_2">8dp</dimen>
+    <dimen name="space_3">12dp</dimen>
+    <dimen name="space_4">16dp</dimen>
+    <dimen name="space_5">20dp</dimen>
+    <dimen name="space_6">24dp</dimen>
+    <dimen name="space_8">32dp</dimen>
+    <dimen name="space_10">40dp</dimen>
+    <dimen name="space_12">48dp</dimen>
+
+    <!-- Screen edge margin on phones -->
+    <dimen name="screen_margin">16dp</dimen>
+
+    <!-- Corner radii by hierarchy (Material 3 shape scale) -->
+    <dimen name="corner_extra_small">4dp</dimen>
+    <dimen name="corner_small">8dp</dimen>
+    <dimen name="corner_medium">12dp</dimen>
+    <dimen name="corner_large">16dp</dimen>
+    <dimen name="corner_extra_large">28dp</dimen>
+
+    <!-- Sizes -->
+    <dimen name="touch_target">48dp</dimen>
+    <dimen name="icon_size">24dp</dimen>
+    <dimen name="avatar_size">40dp</dimen>
+    <dimen name="strength_icon_size">16dp</dimen>
+    <!-- Inset for list dividers so they start under the text, not under the monogram -->
+    <dimen name="list_divider_inset">72dp</dimen>
+    <dimen name="keypad_key_size">72dp</dimen>
+
+    <!-- Autofill picker window width (fraction of the screen, like a Material dialog) -->
+    <item name="picker_min_width_major" format="fraction" type="dimen">65%</item>
+    <item name="picker_min_width_minor" format="fraction" type="dimen">95%</item>
+
+    <!-- Bottom padding for scrolling lists so the last row clears the FAB (56dp FAB + 16dp margin + 16dp gap) -->
+    <dimen name="fab_clearance">88dp</dimen>
+</resources>

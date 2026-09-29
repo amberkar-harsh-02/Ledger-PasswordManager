@@ -1,127 +1,229 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
+    <title>Ledger</title>
     <style>
-        /* --- YOUR THEME CONTROL PANEL --- */
+        /*
+         * Same palette as the Ledger app (app/src/main/res/values/colors.xml): ink blue on cool paper in light mode,
+         * slate in dark mode. System UI font, like the app's system Roboto. No remote fonts or images.
+         */
         :root {
-          /* Change these hex codes to match your Android colors.xml! */
-          --app-bg: #121212;          /* The main background (Dark Gray/Black) */
-          --app-surface: #1E1E1E;     /* The secondary background for cards */
-          --primary-accent: #6200EE;  /* Your main brand color (Default: Android Purple) */
-          --text-main: #FFFFFF;       /* Primary text color */
-          --text-sub: #A0A0A0;        /* Secondary text color */
-          --success: #03DAC6;         /* The green 'Delivered' color */
-          --error: #CF6679;           /* The red 'Failed' color */
+            color-scheme: light dark;
+            --surface: #F4F6F8;
+            --surface-container: #EAEEF2;
+            --on-surface: #1B2430;
+            --on-surface-variant: #4A5563;
+            --outline-variant: #C0C7CD;
+            --primary: #1F5F7A;
+            --attention: #8A5200;
+            --error: #B3261E;
+            --radius-large: 16px;
+            --radius-medium: 12px;
         }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --surface: #14181D;
+                --surface-container: #1B2023;
+                --on-surface: #E3E7EC;
+                --on-surface-variant: #A9B3BF;
+                --outline-variant: #40484C;
+                --primary: #8CC8E4;
+                --attention: #F2B45A;
+                --error: #F2B8B5;
+            }
+        }
+
+        * { box-sizing: border-box; }
 
         body {
-          width: 280px;
-          margin: 0;
-          padding: 24px 20px;
-          background-color: var(--app-bg);
-          color: var(--text-main);
-          font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-          text-align: center;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
+            width: 300px;
+            margin: 0;
+            padding: 20px;
+            background: var(--surface);
+            color: var(--on-surface);
+            font: 14px/20px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
         }
 
-        .header {
-          margin-bottom: 20px;
+        header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .header h2 {
-          margin: 0;
-          font-size: 22px;
-          font-weight: 600;
-          letter-spacing: 0.5px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
+        header svg { width: 24px; height: 24px; fill: var(--primary); flex: none; }
+
+        h1 {
+            margin: 0;
+            font-size: 20px;
+            line-height: 28px;
+            font-weight: 600;
         }
 
-        /* A sleek shield icon for the branding */
-        .header h2::before {
-          font-size: 24px;
+        .lead {
+            margin: 8px 0 16px;
+            color: var(--on-surface-variant);
         }
 
-        .subtitle {
-          font-size: 13px;
-          color: var(--text-sub);
-          margin-top: 6px;
-          line-height: 1.4;
+        /* The QR code needs a white quiet zone in both themes, or phone cameras struggle */
+        .qr {
+            width: 212px;
+            height: 212px;
+            margin: 0 auto;
+            padding: 16px;
+            background: #FFFFFF;
+            border-radius: var(--radius-large);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        /* The QR Code MUST have a white background to be scannable by cameras */
-        #qr-container {
-          background-color: #FFFFFF;
-          padding: 16px;
-          border-radius: 16px;
-          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-          margin: 0 0 24px 0;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          width: 200px;
-          height: 200px;
-          box-sizing: border-box;
+        .qr img {
+            width: 100%;
+            height: 100%;
+            image-rendering: pixelated;
         }
 
-        #qr-code {
-          width: 100%;
-          height: 100%;
-          image-rendering: crisp-edges; /* Keeps the QR pixels sharp */
+        .qr .placeholder {
+            color: #4A5563;
+            text-align: center;
         }
 
-        /* The dynamic status pill at the bottom */
-        .status-badge {
-          font-size: 14px;
-          font-weight: 600;
-          padding: 10px 16px;
-          border-radius: 8px;
-          width: 100%;
-          box-sizing: border-box;
-          transition: all 0.3s ease;
-          background-color: var(--app-surface);
-          color: var(--text-sub);
-          border: 1px solid transparent;
+        /* Check words: the phone shows the same three words for this session */
+        .check-words {
+            margin: 12px 0 0;
+            text-align: center;
+            color: var(--on-surface-variant);
         }
 
-        /* Dynamic states injected by JavaScript */
-        .status-badge.waiting {
-          color: var(--primary-accent);
-          border-color: var(--primary-accent);
-          background-color: rgba(98, 0, 238, 0.1); /* Faded accent background */
+        .check-words strong {
+            display: block;
+            margin-top: 2px;
+            color: var(--on-surface);
+            font-size: 16px;
+            letter-spacing: 0.02em;
         }
 
-        .status-badge.success {
-          color: #000000;
-          background-color: var(--success);
-          border-color: var(--success);
+        /* A real sequence, so it's numbered */
+        ol {
+            margin: 16px 0 0;
+            padding-left: 20px;
+            color: var(--on-surface-variant);
         }
 
-        .status-badge.error {
-          color: #FFFFFF;
-          background-color: var(--error);
-          border-color: var(--error);
+        ol li + li { margin-top: 2px; }
+
+        .status {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: var(--radius-medium);
+            background: var(--surface-container);
+            color: var(--on-surface);
+        }
+
+        .status svg { width: 20px; height: 20px; flex: none; fill: var(--on-surface-variant); margin-top: 0; }
+        .status[data-state="success"] svg { fill: var(--primary); }
+        .status[data-state="error"] svg { fill: var(--error); }
+        .status[data-state="error"] { color: var(--on-surface); box-shadow: inset 0 0 0 1px var(--error); }
+
+        /* Confirm before filling: which login, into which site */
+        .confirm {
+            margin-top: 16px;
+            padding: 16px;
+            border-radius: var(--radius-large);
+            background: var(--surface-container);
+        }
+
+        .confirm h2 {
+            margin: 0;
+            font-size: 16px;
+            line-height: 24px;
+            font-weight: 600;
+        }
+
+        .confirm p { margin: 4px 0 0; color: var(--on-surface-variant); overflow-wrap: anywhere; }
+
+        .confirm .warning {
+            margin-top: 12px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            color: var(--on-surface);
+            box-shadow: inset 3px 0 0 var(--attention);
+            background: var(--surface);
+        }
+
+        .actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        button {
+            font: inherit;
+            font-weight: 600;
+            min-height: 40px;
+            padding: 0 16px;
+            border-radius: 20px;
+            border: 0;
+            cursor: pointer;
+        }
+
+        button.primary { background: var(--primary); color: var(--surface); }
+        button.secondary { background: transparent; color: var(--primary); }
+        button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+        @media (prefers-reduced-motion: no-preference) {
+            .status { transition: box-shadow 150ms ease-out; }
         }
     </style>
 </head>
 <body>
-<div class="header">
-    <h2>Ledger</h2>
-    <div class="subtitle">Scan with your phone to bridge credentials.</div>
+<header>
+    <!-- Material Symbols Rounded "key", Apache 2.0 -->
+    <svg viewBox="0 -960 960 960" aria-hidden="true"><path d="M280-400q-33 0-56.5-23.5T200-480q0-33 23.5-56.5T280-560q33 0 56.5 23.5T360-480q0 33-23.5 56.5T280-400Zm0 160q-100 0-170-70T40-480q0-100 70-170t170-70q67 0 121.5 33t86.5 87h335q8 0 15.5 3t13.5 9l80 80q6 6 8.5 13t2.5 15q0 8-2.5 15t-8.5 13L805-325q-5 5-12 8t-14 4q-7 1-14-1t-13-7l-52-39-57 43q-5 4-11 6t-12 2q-6 0-12.5-2t-11.5-6l-61-43h-47q-32 54-86.5 87T280-240Zm0-80q56 0 98.5-34t56.5-86h125l58 41v.5-.5l82-61 71 55 75-75h-.5.5l-40-40v-.5.5H435q-14-52-56.5-86T280-640q-66 0-113 47t-47 113q0 66 47 113t113 47Z"/></svg>
+    <h1>Ledger</h1>
+</header>
+<p class="lead">Fill this page with a login from your phone.</p>
+
+<div id="pairing">
+    <div class="qr">
+        <img id="qr-code" alt="QR code for Ledger on your phone" hidden>
+        <span id="qr-placeholder" class="placeholder">Preparing a secure code…</span>
+    </div>
+
+    <p id="check-words" class="check-words" hidden>
+        Your phone will show <strong id="check-words-value"></strong>
+    </p>
+
+    <ol>
+        <li>Open Ledger on your phone and tap the login.</li>
+        <li>Tap <strong>Fill on computer</strong>.</li>
+        <li>Scan this code.</li>
+    </ol>
 </div>
 
-<div id="qr-container">
-    <img id="qr-code" src="" alt="Loading..." style="display: none;"/>
+<!-- Shown once the login arrives: confirm which login goes into which site -->
+<section id="confirm" class="confirm" aria-labelledby="confirm-title" hidden>
+    <h2 id="confirm-title"></h2>
+    <p id="confirm-detail"></p>
+    <p id="confirm-warning" class="warning" hidden></p>
+    <div class="actions">
+        <button id="btn-secondary" class="secondary" type="button"></button>
+        <button id="btn-primary" class="primary" type="button"></button>
+    </div>
+</section>
+
+<div id="status-text" class="status" data-state="waiting" role="status" aria-live="polite">
+    <svg viewBox="0 -960 960 960" aria-hidden="true"><path id="status-icon" d=""/></svg>
+    <span id="status-message">Connecting…</span>
 </div>
 
-<div id="status-text" class="status-badge">Connecting to Node...</div>
-
+<script src="lib/qrcode.js"></script>
 <script src="config.js"></script>
 <script src="popup.js"></script>
 </body>

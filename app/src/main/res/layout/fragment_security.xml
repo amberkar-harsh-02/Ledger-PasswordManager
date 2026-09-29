@@ -1,342 +1,253 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Security settings as grouped Material 3 lists: Protection, Autofill, Backup, Activity.
+    Each row: icon, title, one-line explanation, and a switch or current value where relevant.
+-->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/vault_background"
     android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:paddingBottom="@dimen/space_6">
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            android:text="Security Center"
-            android:textColor="@color/vault_accent"
-            android:textSize="28sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:text="Access &amp; Hardening"
-            android:textAllCaps="true"
-            android:textColor="@color/vault_text_secondary"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-
-        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            app:cardBackgroundColor="@color/vault_surface"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="2dp">
+            android:layout_marginHorizontal="@dimen/screen_margin"
+            android:layout_marginTop="@dimen/space_6"
+            android:accessibilityHeading="true"
+            android:text="@string/security_title"
+            android:textAppearance="@style/TextAppearance.Ledger.HeadlineMedium"
+            android:textColor="?attr/colorOnSurface" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
+        <!-- Protection -->
+        <TextView
+            style="@style/Widget.Ledger.ListSubheader"
+            android:text="@string/security_group_protection" />
 
-                <com.google.android.material.switchmaterial.SwitchMaterial
-                    android:id="@+id/switch_stealth_mode"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Stealth Mode"
-                    android:textColor="@color/vault_text_primary"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
+        <LinearLayout
+            android:id="@+id/row_stealth_mode"
+            style="@style/Widget.Ledger.SettingsRow">
+
+            <ImageView
+                style="@style/Widget.Ledger.SheetRowIcon"
+                android:importantForAccessibility="no"
+                app:srcCompat="@drawable/ic_visibility_off" />
+
+            <LinearLayout style="@style/Widget.Ledger.SettingsRowText">
 
                 <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:text="Blocks screenshots and hides the app preview in the recent apps menu."
-                    android:textColor="@color/vault_text_secondary"
-                    android:textSize="12sp" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginBottom="16dp"
-                    android:background="#333333" />
-
-                <com.google.android.material.switchmaterial.SwitchMaterial
-                    android:id="@+id/switch_autofill"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="System Autofill"
-                    android:textColor="@color/vault_text_primary"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
+                    style="@style/Widget.Ledger.SettingsRowTitle"
+                    android:text="@string/security_hide_screen" />
 
                 <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:text="Allow Ledger to fill passwords in apps and websites."
-                    android:textColor="@color/vault_text_secondary"
-                    android:textSize="12sp" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginBottom="16dp"
-                    android:background="#333333" />
-
-                <LinearLayout
-                    android:id="@+id/btn_auto_lock"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Auto-Lock Timeout"
-                        android:textColor="@color/vault_text_primary"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/text_auto_lock_status"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Immediately"
-                        android:textColor="@color/vault_text_secondary"
-                        android:textSize="14sp" />
-                </LinearLayout>
-
+                    style="@style/Widget.Ledger.SettingsRowSummary"
+                    android:text="@string/security_hide_screen_summary" />
             </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:text="Threat Intelligence"
-            android:textAllCaps="true"
-            android:textColor="@color/vault_text_secondary"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            app:cardBackgroundColor="@color/vault_surface"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="2dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/switch_stealth_mode"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:layout_marginStart="@dimen/space_3"
+                android:contentDescription="@string/security_hide_screen" />
+        </LinearLayout>
 
-                <LinearLayout
-                    android:id="@+id/btn_reuse_scanner"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:orientation="vertical"
-                    android:padding="16dp">
+        <LinearLayout
+            android:id="@+id/btn_auto_lock"
+            style="@style/Widget.Ledger.SettingsRow">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Run Password Reuse Audit"
-                        android:textColor="@color/vault_accent"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
+            <ImageView
+                style="@style/Widget.Ledger.SheetRowIcon"
+                android:importantForAccessibility="no"
+                app:srcCompat="@drawable/ic_schedule" />
 
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Scan your vault for duplicate passwords."
-                        android:textColor="@color/vault_text_secondary"
-                        android:textSize="12sp" />
-                </LinearLayout>
+            <LinearLayout style="@style/Widget.Ledger.SettingsRowText">
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginHorizontal="16dp"
-                    android:background="#333333" />
+                <TextView
+                    style="@style/Widget.Ledger.SettingsRowTitle"
+                    android:text="@string/security_auto_lock" />
 
-                <LinearLayout
-                    android:id="@+id/btn_audit_log"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="View Access Audit Log"
-                        android:textColor="@color/vault_accent"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Review recent successful and failed unlock attempts."
-                        android:textColor="@color/vault_text_secondary"
-                        android:textSize="12sp" />
-                </LinearLayout>
-
+                <TextView
+                    android:id="@+id/text_auto_lock_status"
+                    style="@style/Widget.Ledger.SettingsRowSummary"
+                    tools:text="Immediately" />
             </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
 
+        <LinearLayout
+            android:id="@+id/btn_setup_duress"
+            style="@style/Widget.Ledger.SettingsRow">
+
+            <ImageView
+                style="@style/Widget.Ledger.SheetRowIcon"
+                android:importantForAccessibility="no"
+                app:srcCompat="@drawable/ic_shield" />
+
+            <LinearLayout style="@style/Widget.Ledger.SettingsRowText">
+
+                <TextView
+                    style="@style/Widget.Ledger.SettingsRowTitle"
+                    android:text="@string/security_duress" />
+
+                <TextView
+                    style="@style/Widget.Ledger.SettingsRowSummary"
+                    android:text="@string/security_duress_summary" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Autofill -->
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:text="Vault Backup &amp; Restore"
-            android:textAllCaps="true"
-            android:textColor="@color/vault_text_secondary"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+            style="@style/Widget.Ledger.ListSubheader"
+            android:text="@string/security_group_autofill" />
 
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            app:cardBackgroundColor="@color/vault_surface"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="2dp">
+        <LinearLayout
+            android:id="@+id/row_autofill"
+            style="@style/Widget.Ledger.SettingsRow">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
+            <ImageView
+                style="@style/Widget.Ledger.SheetRowIcon"
+                android:importantForAccessibility="no"
+                app:srcCompat="@drawable/ic_password" />
 
-                <LinearLayout
-                    android:id="@+id/btn_export_vault"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="?attr/selectableItemBackground"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:orientation="vertical"
-                    android:padding="16dp">
+            <LinearLayout style="@style/Widget.Ledger.SettingsRowText">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Export Encrypted Backup"
-                        android:textColor="@color/vault_text_primary"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
+                <TextView
+                    style="@style/Widget.Ledger.SettingsRowTitle"
+                    android:text="@string/security_autofill" />
 
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Save an AES-256 encrypted .ledger file to your device."
-                        android:textColor="@color/vault_text_secondary"
-                        android:textSize="12sp" />
-                </LinearLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginHorizontal="16dp"
-                    android:background="#333333" />
-
-                <LinearLayout
-                    android:id="@+id/btn_import_vault"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="?attr/selectableItemBackground"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Import &amp; Merge Backup"
-                        android:textColor="@color/vault_text_primary"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Restore passwords from a backup file without wiping your current vault."
-                        android:textColor="@color/vault_text_secondary"
-                        android:textSize="12sp" />
-                </LinearLayout>
-
+                <TextView
+                    style="@style/Widget.Ledger.SettingsRowSummary"
+                    android:text="@string/security_autofill_summary" />
             </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
 
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/switch_autofill"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/space_3"
+                android:contentDescription="@string/security_autofill" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/btn_computers"
+            style="@style/Widget.Ledger.SettingsRow">
+
+            <ImageView
+                style="@style/Widget.Ledger.SheetRowIcon"
+                android:importantForAccessibility="no"
+                app:srcCompat="@drawable/ic_computer" />
+
+            <LinearLayout style="@style/Widget.Ledger.SettingsRowText">
+
+                <TextView
+                    style="@style/Widget.Ledger.SettingsRowTitle"
+                    android:text="@string/security_computers" />
+
+                <TextView
+                    style="@style/Widget.Ledger.SettingsRowSummary"
+                    android:text="@string/security_computers_summary" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Backup -->
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:layout_marginTop="8dp"
-            android:text="Incident Response"
-            android:textAllCaps="true"
-            android:textColor="#FF5252"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+            style="@style/Widget.Ledger.ListSubheader"
+            android:text="@string/security_group_backup" />
 
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            app:cardBackgroundColor="@color/vault_surface"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="2dp"
-            app:strokeColor="#FF5252"
-            app:strokeWidth="1dp">
+        <LinearLayout
+            android:id="@+id/btn_export_vault"
+            style="@style/Widget.Ledger.SettingsRow">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
+            <ImageView
+                style="@style/Widget.Ledger.SheetRowIcon"
+                android:importantForAccessibility="no"
+                app:srcCompat="@drawable/ic_upload" />
 
-                <LinearLayout
-                    android:id="@+id/btn_setup_duress"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:orientation="vertical"
-                    android:padding="16dp">
+            <LinearLayout style="@style/Widget.Ledger.SettingsRowText">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Set Duress PIN"
-                        android:textColor="#FF5252"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
+                <TextView
+                    style="@style/Widget.Ledger.SettingsRowTitle"
+                    android:text="@string/security_export" />
 
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Create a decoy PIN that opens a fake, empty vault if you are forced to unlock the app."
-                        android:textColor="@color/vault_text_secondary"
-                        android:textSize="12sp" />
-                </LinearLayout>
-
+                <TextView
+                    style="@style/Widget.Ledger.SettingsRowSummary"
+                    android:text="@string/security_export_summary" />
             </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/btn_import_vault"
+            style="@style/Widget.Ledger.SettingsRow">
+
+            <ImageView
+                style="@style/Widget.Ledger.SheetRowIcon"
+                android:importantForAccessibility="no"
+                app:srcCompat="@drawable/ic_download" />
+
+            <LinearLayout style="@style/Widget.Ledger.SettingsRowText">
+
+                <TextView
+                    style="@style/Widget.Ledger.SettingsRowTitle"
+                    android:text="@string/security_import" />
+
+                <TextView
+                    style="@style/Widget.Ledger.SettingsRowSummary"
+                    android:text="@string/security_import_summary" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Activity -->
+        <TextView
+            style="@style/Widget.Ledger.ListSubheader"
+            android:text="@string/security_group_activity" />
+
+        <LinearLayout
+            android:id="@+id/btn_reuse_scanner"
+            style="@style/Widget.Ledger.SettingsRow">
+
+            <ImageView
+                style="@style/Widget.Ledger.SheetRowIcon"
+                android:importantForAccessibility="no"
+                app:srcCompat="@drawable/ic_search" />
+
+            <LinearLayout style="@style/Widget.Ledger.SettingsRowText">
+
+                <TextView
+                    style="@style/Widget.Ledger.SettingsRowTitle"
+                    android:text="@string/security_reuse" />
+
+                <TextView
+                    style="@style/Widget.Ledger.SettingsRowSummary"
+                    android:text="@string/security_reuse_summary" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/btn_audit_log"
+            style="@style/Widget.Ledger.SettingsRow">
+
+            <ImageView
+                style="@style/Widget.Ledger.SheetRowIcon"
+                android:importantForAccessibility="no"
+                app:srcCompat="@drawable/ic_history" />
+
+            <LinearLayout style="@style/Widget.Ledger.SettingsRowText">
+
+                <TextView
+                    style="@style/Widget.Ledger.SettingsRowTitle"
+                    android:text="@string/security_history" />
+
+                <TextView
+                    style="@style/Widget.Ledger.SettingsRowSummary"
+                    android:text="@string/security_history_summary" />
+            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
 </ScrollView>

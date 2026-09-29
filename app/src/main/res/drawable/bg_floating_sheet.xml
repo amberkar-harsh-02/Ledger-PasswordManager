@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Window background for the autofill picker: dialog-style container with the extra-large corner -->
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:inset="@dimen/space_4">
+    <shape android:shape="rectangle">
+        <solid android:color="?attr/colorSurfaceContainerHigh" />
+        <corners android:radius="@dimen/corner_extra_large" />
+    </shape>
+</inset>

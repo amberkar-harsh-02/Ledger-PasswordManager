@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Material "fade through" (outgoing): quick fade out before the next tab comes in -->
+<alpha xmlns:android="http://schemas.android.com/apk/res/android"
+    android:duration="90"
+    android:fromAlpha="1.0"
+    android:interpolator="@interpolator/emphasized_accelerate"
+    android:toAlpha="0.0" />

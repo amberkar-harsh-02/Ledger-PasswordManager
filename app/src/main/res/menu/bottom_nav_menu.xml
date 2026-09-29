@@ -2,26 +2,26 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/nav_home"
-        android:icon="@drawable/home1"
-        android:title="Home" />
+        android:icon="@drawable/nav_home"
+        android:title="@string/nav_home" />
 
     <item
         android:id="@+id/nav_vault"
-        android:icon="@drawable/lock"
-        android:title="Vault" />
+        android:icon="@drawable/nav_vault"
+        android:title="@string/nav_vault" />
 
     <item
         android:id="@+id/nav_authenticator"
-        android:icon="@drawable/auth"
-        android:title="2FA" />
+        android:icon="@drawable/nav_codes"
+        android:title="@string/nav_codes" />
 
     <item
         android:id="@+id/nav_security"
-        android:icon="@drawable/security"
-        android:title="Security" />
+        android:icon="@drawable/nav_security"
+        android:title="@string/nav_security" />
 
     <item
         android:id="@+id/nav_about"
-        android:icon="@drawable/info"
-        android:title="About" />
+        android:icon="@drawable/nav_about"
+        android:title="@string/nav_about" />
 </menu>

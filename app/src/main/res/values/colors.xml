@@ -1,14 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Ledger color roles, light theme. Dark values live in values-night/colors.xml.
+    Generated from seed #1F5F7A ("ledger ink blue") with SchemeTonalSpot, then the
+    Ledger's own surface / ink / status values pinned on top.
+    Layouts and code should reference theme attributes (?attr/colorSurface etc.),
+    not these colors directly.
+-->
 <resources>
-    <color name="vault_background">#121212</color>
-    <color name="vault_surface">#1E1E1E</color>
+    <color name="ledger_primary">#1F5F7A</color>
+    <color name="ledger_on_primary">#FFFFFF</color>
+    <color name="ledger_primary_container">#C1E8FF</color>
+    <color name="ledger_on_primary_container">#004D67</color>
 
-    <color name="vault_accent">#00E676</color>
+    <color name="ledger_secondary">#4D616C</color>
+    <color name="ledger_on_secondary">#FFFFFF</color>
+    <color name="ledger_secondary_container">#D1E6F3</color>
+    <color name="ledger_on_secondary_container">#364954</color>
 
-    <color name="vault_text_primary">#E0E0E0</color>
-    <color name="vault_text_secondary">#9E9E9E</color>
-    <color name="primary_brand">#2962FF</color>
+    <color name="ledger_tertiary">#5F5A7D</color>
+    <color name="ledger_on_tertiary">#FFFFFF</color>
+    <color name="ledger_tertiary_container">#E5DEFF</color>
+    <color name="ledger_on_tertiary_container">#474364</color>
 
-    <color name="nav_item_active">#2962FF</color>
-    <color name="nav_item_inactive">#808080</color>
+    <color name="ledger_error">#B3261E</color>
+    <color name="ledger_on_error">#FFFFFF</color>
+    <color name="ledger_error_container">#FFDAD6</color>
+    <color name="ledger_on_error_container">#93000A</color>
+
+    <!-- "Needs attention" (weak / reused passwords). Not an error: nothing has failed. -->
+    <color name="ledger_attention">#8A5200</color>
+    <color name="ledger_on_attention">#FFFFFF</color>
+    <color name="ledger_attention_container">#FFDDB8</color>
+    <color name="ledger_on_attention_container">#6A3F00</color>
+
+    <color name="ledger_surface">#F4F6F8</color>
+    <color name="ledger_on_surface">#1B2430</color>
+    <color name="ledger_surface_variant">#DCE3E9</color>
+    <color name="ledger_on_surface_variant">#4A5563</color>
+    <color name="ledger_surface_dim">#D6DADE</color>
+    <color name="ledger_surface_bright">#F6FAFE</color>
+    <color name="ledger_surface_container_lowest">#FFFFFF</color>
+    <color name="ledger_surface_container_low">#F0F4F8</color>
+    <color name="ledger_surface_container">#EAEEF2</color>
+    <color name="ledger_surface_container_high">#E5E9ED</color>
+    <color name="ledger_surface_container_highest">#DFE3E7</color>
+
+    <color name="ledger_outline">#737D8A</color>
+    <color name="ledger_outline_variant">#C0C7CD</color>
+    <color name="ledger_inverse_surface">#2C3134</color>
+    <color name="ledger_inverse_on_surface">#EDF1F5</color>
+    <color name="ledger_inverse_primary">#8DCFF2</color>
 </resources>

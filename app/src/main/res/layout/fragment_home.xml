@@ -1,177 +1,147 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Home: greeting, the vault balance (one bar + counts), then the logins that need attention.
+    Left aligned. The balance bar is the one bold element; everything else stays quiet.
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="24dp"
-    android:background="@color/vault_background">
+    android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/textHeaderGreeting"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Welcome"
-        android:textColor="@color/vault_text_primary"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="16dp" />
-
-    <com.google.android.material.card.MaterialCardView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardBackgroundColor="@color/vault_surface"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="2dp"
-        app:strokeColor="@color/vault_accent"
-        app:strokeWidth="1dp"
-        android:layout_marginBottom="32dp">
+        android:orientation="vertical"
+        android:paddingHorizontal="@dimen/screen_margin"
+        android:paddingTop="@dimen/space_6">
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/textHeaderGreeting"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="20dp"
-            android:gravity="center_vertical">
+            android:accessibilityHeading="true"
+            android:textAppearance="@style/TextAppearance.Ledger.HeadlineMedium"
+            android:textColor="?attr/colorOnSurface"
+            tools:text="Good evening, Harsh" />
 
-            <TextView
-                android:id="@+id/textQuip"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Loading..."
-                android:textColor="@color/vault_text_secondary"
-                android:textSize="16sp"
-                android:textStyle="italic" />
-
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Threat Dashboard"
-        android:textColor="@color/vault_accent"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="16dp"/>
-
-    <com.google.android.material.card.MaterialCardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:cardBackgroundColor="@color/vault_surface"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="4dp"
-        android:layout_marginBottom="12dp">
-        <LinearLayout
+        <!-- Vault balance -->
+        <TextView
+            android:id="@+id/text_total_logins"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="20dp"
-            android:gravity="center_vertical">
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Total Credentials"
-                android:textColor="@color/vault_text_secondary"
-                android:textSize="16sp"
-                android:textAllCaps="true"/>
-            <TextView
-                android:id="@+id/text_total_passwords"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="0"
-                android:textColor="@color/vault_text_primary"
-                android:textSize="24sp"
-                android:textStyle="bold"/>
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
+            android:layout_marginTop="@dimen/space_6"
+            android:textAppearance="@style/TextAppearance.Ledger.Figure"
+            android:textColor="?attr/colorOnSurface"
+            tools:text="38 logins" />
 
-    <com.google.android.material.card.MaterialCardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:cardBackgroundColor="@color/vault_surface"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="4dp"
-        app:strokeColor="#FF5252"
-        app:strokeWidth="1dp"
-        android:layout_marginBottom="12dp">
+        <com.example.passmanager.ui.main.VaultBalanceBar
+            android:id="@+id/balance_bar"
+            android:layout_width="match_parent"
+            android:layout_height="8dp"
+            android:layout_marginTop="@dimen/space_3" />
+
         <LinearLayout
+            android:id="@+id/balance_legend"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="20dp"
-            android:gravity="center_vertical">
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Vulnerabilities"
-                android:textColor="#FF5252"
-                android:textSize="16sp"
-                android:textAllCaps="true"
-                android:textStyle="bold"/>
-            <TextView
-                android:id="@+id/text_weak_passwords"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="0"
-                android:textColor="#FF5252"
-                android:textSize="24sp"
-                android:textStyle="bold"/>
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
+            android:layout_marginTop="@dimen/space_3"
+            android:focusable="true"
+            android:orientation="horizontal">
 
-    <com.google.android.material.card.MaterialCardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:cardBackgroundColor="@color/vault_surface"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="4dp"
-        app:strokeColor="#33D9B2"
-        app:strokeWidth="1dp">
-        <LinearLayout
+            <TextView
+                android:id="@+id/text_strong_count"
+                style="@style/Widget.Ledger.LegendItem"
+                app:drawableStartCompat="@drawable/legend_strong"
+                tools:text="29 strong" />
+
+            <TextView
+                android:id="@+id/text_fair_count"
+                style="@style/Widget.Ledger.LegendItem"
+                app:drawableStartCompat="@drawable/legend_fair"
+                tools:text="5 fair" />
+
+            <TextView
+                android:id="@+id/text_weak_count"
+                style="@style/Widget.Ledger.LegendItem"
+                app:drawableStartCompat="@drawable/legend_weak"
+                tools:text="4 weak" />
+        </LinearLayout>
+
+        <!-- Needs attention -->
+        <TextView
+            android:id="@+id/text_attention_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="20dp"
-            android:gravity="center_vertical">
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Secured Items"
-                android:textColor="#33D9B2"
-                android:textSize="16sp"
-                android:textAllCaps="true"
-                android:textStyle="bold"/>
-            <TextView
-                android:id="@+id/text_strong_passwords"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="0"
-                android:textColor="#33D9B2"
-                android:textSize="24sp"
-                android:textStyle="bold"/>
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
+            android:layout_marginTop="@dimen/space_8"
+            android:accessibilityHeading="true"
+            android:text="@string/home_needs_attention"
+            android:textAppearance="@style/TextAppearance.Ledger.TitleMedium"
+            android:textColor="?attr/colorOnSurface" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Action Required"
-        android:textColor="@color/vault_accent"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:textAllCaps="true"
-        android:layout_marginTop="24dp"
-        android:layout_marginBottom="8dp"/>
+        <TextView
+            android:id="@+id/text_attention_hint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_1"
+            android:textAppearance="@style/TextAppearance.Ledger.BodyMedium"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            tools:text="Tap a login to change its password." />
+    </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView_vulnerabilities"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginTop="@dimen/space_2"
         android:layout_weight="1"
-        android:clipToPadding="false" />
+        android:clipToPadding="false"
+        android:paddingBottom="@dimen/space_4" />
 
+    <!-- Empty vault: an invitation to act (no Add button in duress mode) -->
+    <LinearLayout
+        android:id="@+id/empty_state"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="@dimen/space_6"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <ImageView
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:importantForAccessibility="no"
+            app:srcCompat="@drawable/ic_key"
+            app:tint="?attr/colorOnSurfaceVariant" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_4"
+            android:text="@string/home_empty_title"
+            android:textAppearance="@style/TextAppearance.Ledger.TitleLarge"
+            android:textColor="?attr/colorOnSurface" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_2"
+            android:gravity="center"
+            android:text="@string/home_empty_body"
+            android:textAppearance="@style/TextAppearance.Ledger.BodyMedium"
+            android:textColor="?attr/colorOnSurfaceVariant" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_empty_add"
+            style="@style/Widget.Material3.Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_6"
+            android:text="@string/vault_add_login"
+            app:icon="@drawable/ic_add" />
+    </LinearLayout>
 </LinearLayout>

@@ -1,0 +1,4 @@
+# Copy the line below into local.properties (git-ignored). Android Studio adds sdk.dir by itself.
+
+# Address of your Ledger relay (relay/README.md), used by BuildConfig.RELAY_URL (app/build.gradle).
+RELAY_URL=wss://ledger-relay.<your-account>.workers.dev

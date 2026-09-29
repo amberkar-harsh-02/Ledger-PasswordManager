@@ -1,0 +1,11 @@
+{
+  "name": "ledger-relay",
+  "private": true,
+  "type": "module",
+  "description": "Relay for Ledger's Fill on computer: forwards end-to-end encrypted messages between the phone and the browser extension.",
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "deploy": "npx wrangler deploy",
+    "dev": "npx wrangler dev"
+  }
+}

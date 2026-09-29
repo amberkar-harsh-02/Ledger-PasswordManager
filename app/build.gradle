@@ -1,7 +1,5 @@
 plugins {
     alias(libs.plugins.android.application)
-    id 'com.google.gms.google-services'
-    id 'com.google.firebase.appdistribution'
 }
 
 def localProperties = new Properties()
@@ -22,7 +20,9 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField "String", "PIESOCKET_API_KEY", "\"${localProperties.getProperty('PIESOCKET_API_KEY')}\""
+        // Address of your Ledger relay (relay/ in this repo), e.g. wss://ledger-relay.<account>.workers.dev
+        // Not a secret: the relay has no API key and only ever carries end-to-end encrypted messages.
+        buildConfigField "String", "RELAY_URL", "\"${localProperties.getProperty('RELAY_URL', '')}\""
     }
 
     buildFeatures {
@@ -31,7 +31,12 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            // R8: removes unused code, renames classes/methods and optimizes the rest.
+            // shrinkResources then drops layouts/drawables nothing references any more.
+            // Keep the mapping file (build/outputs/mapping/release/mapping.txt) of every release
+            // you ship; it turns obfuscated crash stack traces back into readable ones.
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -42,20 +47,20 @@ android {
 }
 
 dependencies {
-    implementation 'com.google.zxing:core:3.4.1'
+    implementation 'com.google.zxing:core:3.5.3'
     implementation 'com.journeyapps:zxing-android-embedded:4.3.0'
     implementation 'uk.co.samuelwall:material-tap-target-prompt:3.3.2'
-    implementation 'com.google.firebase:firebase-appdistribution:16.0.0-beta11'
     implementation libs.appcompat
     implementation libs.material
     implementation libs.activity
     implementation libs.constraintlayout
-    implementation libs.room.common.jvm
     testImplementation libs.junit
+    // Real org.json for JVM unit tests (Android's copy is a stub off-device); not shipped in the app
+    testImplementation 'org.json:json:20240303'
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
 
-    def room_version = "2.5.2"
+    def room_version = "2.8.4" // Keep runtime, compiler and common on one version
     def lifecycle_version = "2.6.2"
 
     // Room Database
@@ -66,5 +71,5 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-livedata:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel:$lifecycle_version"
     implementation 'androidx.biometric:biometric:1.1.0'
-    implementation 'com.squareup.okhttp3:okhttp:4.10.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0' // 4.10.0 pulled okio 3.0.0 (CVE-2023-3635)
 }

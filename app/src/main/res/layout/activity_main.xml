@@ -1,121 +1,99 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    App shell: the Vault list lives here; Home, 2FA, Security and About swap into
+    fragment_container. The root draws edge to edge; MainActivity applies the status-bar
+    inset as top padding and the navigation bar pads itself for the gesture bar.
+-->
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/vault_background"
-    android:fitsSystemWindows="true"
     tools:context=".ui.main.MainActivity">
 
     <TextView
         android:id="@+id/text_vault_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="24dp"
-        android:text="My Vault"
-        android:textColor="@color/vault_accent"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginHorizontal="@dimen/screen_margin"
+        android:layout_marginTop="@dimen/space_6"
+        android:accessibilityHeading="true"
+        android:text="@string/vault_title"
+        android:textAppearance="@style/TextAppearance.Ledger.HeadlineMedium"
+        android:textColor="?attr/colorOnSurface"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <EditText
-        android:id="@+id/edit_text_search"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/search_container"
+        style="@style/Widget.Ledger.SearchField"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="8dp"
-        android:backgroundTint="@color/vault_accent"
-        android:hint="Search Vault..."
-        android:textColorHint="@color/vault_text_secondary"
-        android:textColor="@color/vault_text_primary"
-        android:inputType="text"
-        android:maxLines="1"
-        android:drawableStart="@android:drawable/ic_menu_search"
-        android:drawablePadding="8dp"
-        app:layout_constraintTop_toBottomOf="@+id/text_vault_title"
+        android:layout_marginHorizontal="@dimen/screen_margin"
+        android:layout_marginTop="@dimen/space_4"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/text_vault_title">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edit_text_search"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/vault_search_hint"
+            android:imeOptions="actionSearch"
+            android:importantForAutofill="no"
+            android:inputType="text"
+            android:maxLines="1" />
+    </com.google.android.material.textfield.TextInputLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView_credentials"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginTop="@dimen/space_2"
         android:clipToPadding="false"
-        android:padding="8dp"
-        app:layout_constraintTop_toBottomOf="@+id/edit_text_search"
-        app:layout_constraintStart_toStartOf="parent"
+        android:paddingTop="@dimen/space_2"
+        android:paddingBottom="@dimen/fab_clearance"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/bottom_navigation" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/search_container" />
 
     <FrameLayout
         android:id="@+id/fragment_container"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="@color/vault_background"
+        android:background="?attr/colorSurface"
         android:visibility="gone"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/bottom_navigation" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
+    <!-- Material 3 navigation bar: default M3 style (surface container, indicator pill, filled icon when selected) -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/vault_surface"
-        app:itemIconTint="@color/bottom_nav_color_state"
-        app:itemTextColor="@color/bottom_nav_color_state"
-        app:menu="@menu/bottom_nav_menu"
+        app:labelVisibilityMode="labeled"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:menu="@menu/bottom_nav_menu" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_add_password"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="24dp"
-        android:layout_marginBottom="24dp"
-        android:contentDescription="Add New Password"
-        android:src="@android:drawable/ic_input_add"
-        app:backgroundTint="@color/vault_accent"
-        app:tint="@color/vault_background"
+        android:layout_marginEnd="@dimen/screen_margin"
+        android:layout_marginBottom="@dimen/screen_margin"
+        android:contentDescription="@string/vault_add_login"
+        app:srcCompat="@drawable/ic_add"
         app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <LinearLayout
-        android:id="@+id/layout_resume_loading"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/vault_background"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:translationZ="100dp"
-        android:visibility="gone">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            android:fontFamily="monospace"
-            android:text="Re-establishing secure tunnel..."
-            android:textColor="@color/vault_accent"
-            android:textSize="14sp" />
-
-        <ProgressBar
-            android:id="@+id/progress_resume"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:max="100"
-            android:progressBackgroundTint="@color/vault_surface"
-            android:progressTint="@color/vault_accent" />
-    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

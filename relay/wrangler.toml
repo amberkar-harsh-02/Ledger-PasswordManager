@@ -1,0 +1,15 @@
+# Ledger relay (Cloudflare Worker + Durable Object). Deploy: see relay/README.md
+name = "ledger-relay"
+main = "src/index.js"
+compatibility_date = "2026-09-01"
+
+# No secrets or API keys: the relay only forwards end-to-end encrypted messages within a room.
+
+[[durable_objects.bindings]]
+name = "ROOMS"
+class_name = "Room"
+
+# SQLite-backed Durable Objects are available on the Workers free plan
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Room"]

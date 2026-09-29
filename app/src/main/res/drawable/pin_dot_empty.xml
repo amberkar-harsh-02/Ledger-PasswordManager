@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- PIN entry: digit not yet entered -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <size
+        android:width="16dp"
+        android:height="16dp" />
+    <stroke
+        android:width="2dp"
+        android:color="?attr/colorOutline" />
+</shape>

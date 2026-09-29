@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Material "fade through" (incoming), used when switching navigation-bar tabs:
+    waits for the outgoing screen to fade (90ms), then fades in while scaling up from 92%.
+-->
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:interpolator="@interpolator/emphasized_decelerate"
+    android:shareInterpolator="true">
+    <alpha
+        android:duration="210"
+        android:fromAlpha="0.0"
+        android:startOffset="90"
+        android:toAlpha="1.0" />
+    <scale
+        android:duration="210"
+        android:fromXScale="0.92"
+        android:fromYScale="0.92"
+        android:pivotX="50%"
+        android:pivotY="50%"
+        android:startOffset="90"
+        android:toXScale="1.0"
+        android:toYScale="1.0" />
+</set>

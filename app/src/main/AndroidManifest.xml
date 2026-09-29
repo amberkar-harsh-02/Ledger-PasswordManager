@@ -11,7 +11,8 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
-        android:allowBackup="true"
+        android:name=".LedgerApp"
+        android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
@@ -23,7 +24,7 @@
         <activity
             android:name=".ui.main.SplashActivity"
             android:exported="true"
-            android:theme="@style/Theme.PassManager">
+            android:theme="@style/Theme.Ledger.Launch">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -33,13 +34,11 @@
         <activity
             android:name=".ui.main.WelcomeActivity"
             android:exported="false"
+            android:windowSoftInputMode="adjustResize"
             android:theme="@style/Theme.PassManager" />
 
         <activity
             android:name=".ui.main.MainActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.main.SettingsActivity"
             android:exported="false" />
 
         <activity
@@ -52,13 +51,19 @@
 
         <activity
             android:name=".ui.main.EditCredentialActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
 
         <activity
             android:name=".PortraitCaptureActivity"
             android:screenOrientation="portrait"
             android:stateNotNeeded="true"
             android:theme="@style/zxing_CaptureTheme" />
+        <activity
+            android:name=".AutofillAuthActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:theme="@style/Theme.Ledger.Transparent" />
         <activity
             android:name=".AutofillPickerActivity"
             android:exported="false"

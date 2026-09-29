@@ -27,6 +27,12 @@ public class VaultAutofillService extends AutofillService {
     public void onFillRequest(FillRequest request, CancellationSignal cancellationSignal, FillCallback callback) {
         Log.d(TAG, "onFillRequest: Scanning screen...");
 
+        // Duress session open: offer nothing, not even usernames or "Search Ledger"
+        if (com.example.passmanager.security.VaultSession.isDuress()) {
+            callback.onSuccess(null);
+            return;
+        }
+
         List<FillContext> contexts = request.getFillContexts();
         AssistStructure structure = contexts.get(contexts.size() - 1).getStructure();
 
@@ -59,21 +65,9 @@ public class VaultAutofillService extends AutofillService {
             // 2. Determine the Target Title to search for
             android.content.ComponentName component = structure.getActivityComponent();
             String rawPackageName = (component != null) ? component.getPackageName() : "Unknown App";
-            String searchTitle = rawPackageName;
-
-            if (parsed.webDomain != null && !parsed.webDomain.isEmpty()) {
-                searchTitle = parsed.webDomain;
-            } else {
-                try {
-                    android.content.pm.PackageManager pm = getApplicationContext().getPackageManager();
-                    android.content.pm.ApplicationInfo ai = pm.getApplicationInfo(rawPackageName, 0);
-                    searchTitle = (String) pm.getApplicationLabel(ai);
-                } catch (Exception e) {
-                    Log.w(TAG, "Could not find app name.");
-                }
-            }
-
-            final String finalSearchTitle = searchTitle;
+            final String targetPackage = component != null ? component.getPackageName() : null;
+            final String targetLabel = targetPackage != null ? getAppLabel(targetPackage) : null;
+            final String finalSearchTitle = AutofillMatcher.targetName(rawPackageName, targetLabel, parsed.webDomain);
 
             // 3. Query the Database on a Background Thread
             java.util.concurrent.Executors.newSingleThreadExecutor().execute(() -> {
@@ -86,32 +80,36 @@ public class VaultAutofillService extends AutofillService {
                     boolean foundMatch = false;
 
                     for (Credential cred : allCreds) {
-                        // Look for a match
-                        if (cred.getTitle().toLowerCase().contains(finalSearchTitle.toLowerCase()) ||
-                                finalSearchTitle.toLowerCase().contains(cred.getTitle().toLowerCase())) {
+                        // Look for an exact match (substring matching let look-alike apps/sites pull credentials)
+                        if (AutofillMatcher.matches(cred.getTitle(), finalSearchTitle)) {
 
                             foundMatch = true;
-                            String decryptedPassword = EncryptionUtil.decryptPassword(cred.getEncryptedPassword(), cred.getEncryptionIv());
 
-                            String displayUser = cred.getUsername();
-                            if (displayUser == null || displayUser.trim().isEmpty()) {
-                                displayUser = "Saved Password";
-                            }
+                            // Dropdown row: username on top, site/app name underneath
+                            android.widget.RemoteViews presentation = AutofillPresentation.login(this, cred.getTitle(), cred.getUsername());
 
-                            // Build the UI Dropdown Row (Using the custom Ledger layout)
-                            android.widget.RemoteViews presentation = new android.widget.RemoteViews(getPackageName(), R.layout.autofill_dropdown_item);
-                            presentation.setTextViewText(R.id.autofill_text, displayUser);
-
-                            // Attach the data to the boxes
+                            // Locked dataset: the fields are listed but empty. Tapping the row opens
+                            // AutofillAuthActivity, which asks for fingerprint/PIN, decrypts the password
+                            // and returns the filled dataset. Nothing is decrypted here.
                             android.service.autofill.Dataset.Builder datasetBuilder = new android.service.autofill.Dataset.Builder();
+                            if (parsed.usernameId != null) datasetBuilder.setValue(parsed.usernameId, null, presentation);
+                            if (parsed.passwordId != null) datasetBuilder.setValue(parsed.passwordId, null, presentation);
 
-                            if (parsed.usernameId != null) {
-                                String safeUser = cred.getUsername() != null ? cred.getUsername() : "";
-                                datasetBuilder.setValue(parsed.usernameId, android.view.autofill.AutofillValue.forText(safeUser), presentation);
-                            }
-                            if (parsed.passwordId != null) {
-                                datasetBuilder.setValue(parsed.passwordId, android.view.autofill.AutofillValue.forText(decryptedPassword), presentation);
-                            }
+                            android.content.Intent unlockIntent = new android.content.Intent(getApplicationContext(), AutofillAuthActivity.class);
+                            unlockIntent.putExtra(AutofillAuthActivity.EXTRA_CREDENTIAL_ID, cred.getId());
+                            // So the prompt can say where the password is going
+                            unlockIntent.putExtra(AutofillPresentation.EXTRA_TARGET_PACKAGE, targetPackage);
+                            unlockIntent.putExtra(AutofillPresentation.EXTRA_TARGET_LABEL, targetLabel);
+                            unlockIntent.putExtra(AutofillPresentation.EXTRA_TARGET_WEB_DOMAIN, parsed.webDomain);
+                            if (parsed.usernameId != null) unlockIntent.putExtra("target_username_id", parsed.usernameId);
+                            if (parsed.passwordId != null) unlockIntent.putExtra("target_password_id", parsed.passwordId);
+                            android.app.PendingIntent unlockPending = android.app.PendingIntent.getActivity(
+                                    getApplicationContext(),
+                                    AutofillAuthActivity.REQUEST_CODE_BASE + cred.getId(), // one per login
+                                    unlockIntent,
+                                    android.app.PendingIntent.FLAG_CANCEL_CURRENT | android.app.PendingIntent.FLAG_MUTABLE
+                            );
+                            datasetBuilder.setAuthentication(unlockPending.getIntentSender());
 
                             responseBuilder.addDataset(datasetBuilder.build());
                         }
@@ -125,6 +123,9 @@ public class VaultAutofillService extends AutofillService {
                         android.content.Intent authIntent = new android.content.Intent(getApplicationContext(), AutofillPickerActivity.class);
                         if (parsed.usernameId != null) authIntent.putExtra("target_username_id", parsed.usernameId);
                         if (parsed.passwordId != null) authIntent.putExtra("target_password_id", parsed.passwordId);
+                        authIntent.putExtra(AutofillPresentation.EXTRA_TARGET_PACKAGE, targetPackage);
+                        authIntent.putExtra(AutofillPresentation.EXTRA_TARGET_LABEL, targetLabel);
+                        authIntent.putExtra(AutofillPresentation.EXTRA_TARGET_WEB_DOMAIN, parsed.webDomain);
 
                         android.app.PendingIntent pendingIntent = android.app.PendingIntent.getActivity(
                                 getApplicationContext(),
@@ -135,8 +136,7 @@ public class VaultAutofillService extends AutofillService {
                         android.content.IntentSender intentSender = pendingIntent.getIntentSender();
 
                         // Build the Custom Ledger UI for the fallback button
-                        android.widget.RemoteViews authPresentation = new android.widget.RemoteViews(getPackageName(), R.layout.autofill_dropdown_item);
-                        authPresentation.setTextViewText(R.id.autofill_text, "Search Ledger...");
+                        android.widget.RemoteViews authPresentation = AutofillPresentation.searchLedger(this);
 
                         // THE FIX: Attach Intent directly to the FillResponse to wipe out the "Double Tap" bug
                         responseBuilder.setAuthentication(idsToWatch, intentSender, authPresentation);
@@ -170,40 +170,30 @@ public class VaultAutofillService extends AutofillService {
         }
 
         // --- THE VAULT DROP ---
-        Log.d(TAG, "Rip Complete. Username: " + (finalData.usernameText != null ? finalData.usernameText : "NULL"));
+        Log.d(TAG, "Rip Complete. Username: " + (finalData.usernameText != null ? "FOUND (Hidden)" : "NULL"));
         Log.d(TAG, "Rip Complete. Password: " + (finalData.passwordText != null ? "FOUND (Hidden)" : "NULL"));
 
         if (finalData.passwordText != null) {
             String rawPackageName = contexts.get(contexts.size() - 1).getStructure().getActivityComponent().getPackageName();
-            String finalTitle = rawPackageName;
-
-            if (finalData.webDomain != null && !finalData.webDomain.isEmpty()) {
-                finalTitle = DomainFormatter.formatWebsiteName(finalData.webDomain);
-            } else {
-                try {
-                    android.content.pm.PackageManager pm = getApplicationContext().getPackageManager();
-                    android.content.pm.ApplicationInfo ai = pm.getApplicationInfo(rawPackageName, 0);
-                    finalTitle = (String) pm.getApplicationLabel(ai);
-                } catch (Exception e) {
-                    Log.w(TAG, "Could not find app name.");
-                }
-            }
-
-            final String finalDbTitle = finalTitle;
+            // Same naming rule as the fill side, so saved credentials match on the next visit
+            final String finalDbTitle = AutofillMatcher.targetName(rawPackageName, getAppLabel(rawPackageName), finalData.webDomain);
             String user = finalData.usernameText != null ? finalData.usernameText.toString() : "Unknown User";
             String pass = finalData.passwordText.toString();
 
             java.util.concurrent.Executors.newSingleThreadExecutor().execute(() -> {
                 try {
                     android.util.Pair<String, String> encryptedData = EncryptionUtil.encryptPassword(pass);
-                    Credential newAccount = new Credential(finalDbTitle, user, encryptedData.first, encryptedData.second, 1, null);
+                    // Real strength score (was hard-coded to "fair" for every autofill save)
+                    Credential newAccount = new Credential(finalDbTitle, user, encryptedData.first, encryptedData.second,
+                            PasswordStrength.score(pass), null);
 
                     CredentialRepository repo = new CredentialRepository(getApplication());
                     repo.insert(newAccount);
 
+                    // Toast, not snackbar: this appears over another app
                     android.os.Handler handler = new android.os.Handler(android.os.Looper.getMainLooper());
                     handler.post(() -> android.widget.Toast.makeText(getApplicationContext(),
-                            "Ledger: Saved " + finalDbTitle + " to Vault!",
+                            getString(R.string.autofill_saved, finalDbTitle),
                             android.widget.Toast.LENGTH_LONG).show());
 
                 } catch (Exception e) {
@@ -214,10 +204,21 @@ public class VaultAutofillService extends AutofillService {
             Log.e(TAG, "ABORTING SAVE: Password text was null! The scanner couldn't rip the text.");
             android.os.Handler handler = new android.os.Handler(android.os.Looper.getMainLooper());
             handler.post(() -> android.widget.Toast.makeText(getApplicationContext(),
-                    "Ledger Error: Could not read the password off the screen.",
+                    R.string.autofill_save_failed,
                     android.widget.Toast.LENGTH_LONG).show());
         }
         callback.onSuccess();
+    }
+
+    private String getAppLabel(String packageName) {
+        try {
+            android.content.pm.PackageManager pm = getApplicationContext().getPackageManager();
+            android.content.pm.ApplicationInfo ai = pm.getApplicationInfo(packageName, 0);
+            return pm.getApplicationLabel(ai).toString();
+        } catch (Exception e) {
+            Log.w(TAG, "Could not find app name.");
+            return null;
+        }
     }
 
     // --- THE SCREEN PARSER HELPERS ---
@@ -231,9 +232,13 @@ public class VaultAutofillService extends AutofillService {
 
     // Pass 1: Finding the boxes on load
     private void scanForAutofillIds(AssistStructure.ViewNode node, ParsedStructure parsed) {
+        if (node.getWebDomain() != null) {
+            parsed.webDomain = node.getWebDomain();
+        }
+
         if (node.getAutofillHints() != null) {
             for (String hint : node.getAutofillHints()) {
-                String h = hint.toLowerCase();
+                String h = hint.toLowerCase(java.util.Locale.ROOT);
                 if (h.contains("username") || h.contains("email")) {
                     parsed.usernameId = node.getAutofillId();
                 } else if (h.contains("password")) {
@@ -243,8 +248,8 @@ public class VaultAutofillService extends AutofillService {
         }
 
         if (node.getAutofillId() != null) {
-            String viewHint = node.getHint() != null ? node.getHint().toString().toLowerCase() : "";
-            String viewId = node.getIdEntry() != null ? node.getIdEntry().toLowerCase() : "";
+            String viewHint = node.getHint() != null ? node.getHint().toString().toLowerCase(java.util.Locale.ROOT) : "";
+            String viewId = node.getIdEntry() != null ? node.getIdEntry().toLowerCase(java.util.Locale.ROOT) : "";
 
             if (parsed.usernameId == null && (viewHint.contains("email") || viewHint.contains("user") || viewId.contains("email") || viewId.contains("user"))) {
                 parsed.usernameId = node.getAutofillId();
@@ -257,8 +262,8 @@ public class VaultAutofillService extends AutofillService {
         android.view.ViewStructure.HtmlInfo htmlInfo = node.getHtmlInfo();
         if (htmlInfo != null && "input".equalsIgnoreCase(htmlInfo.getTag())) {
             for (android.util.Pair<String, String> attr : htmlInfo.getAttributes()) {
-                String attrName = attr.first != null ? attr.first.toLowerCase() : "";
-                String attrValue = attr.second != null ? attr.second.toLowerCase() : "";
+                String attrName = attr.first != null ? attr.first.toLowerCase(java.util.Locale.ROOT) : "";
+                String attrValue = attr.second != null ? attr.second.toLowerCase(java.util.Locale.ROOT) : "";
 
                 if (parsed.usernameId == null && (attrValue.contains("email") || attrValue.contains("username") || attrValue.contains("login"))) {
                     parsed.usernameId = node.getAutofillId();
@@ -298,14 +303,14 @@ public class VaultAutofillService extends AutofillService {
 
         if (node.getAutofillHints() != null && hasActualText) {
             for (String hint : node.getAutofillHints()) {
-                String h = hint.toLowerCase();
+                String h = hint.toLowerCase(java.util.Locale.ROOT);
                 if (h.contains("username") || h.contains("email")) parsed.usernameText = node.getText();
                 else if (h.contains("password")) parsed.passwordText = node.getText();
             }
         }
 
         if (hasActualText) {
-            String viewId = node.getIdEntry() != null ? node.getIdEntry().toLowerCase() : "";
+            String viewId = node.getIdEntry() != null ? node.getIdEntry().toLowerCase(java.util.Locale.ROOT) : "";
 
             if (parsed.usernameText == null && (viewId.contains("email") || viewId.contains("user") || viewId.contains("login"))) {
                 parsed.usernameText = node.getText();
@@ -318,8 +323,8 @@ public class VaultAutofillService extends AutofillService {
         android.view.ViewStructure.HtmlInfo htmlInfo = node.getHtmlInfo();
         if (htmlInfo != null && "input".equalsIgnoreCase(htmlInfo.getTag()) && hasActualText) {
             for (android.util.Pair<String, String> attr : htmlInfo.getAttributes()) {
-                String attrName = attr.first != null ? attr.first.toLowerCase() : "";
-                String attrValue = attr.second != null ? attr.second.toLowerCase() : "";
+                String attrName = attr.first != null ? attr.first.toLowerCase(java.util.Locale.ROOT) : "";
+                String attrValue = attr.second != null ? attr.second.toLowerCase(java.util.Locale.ROOT) : "";
 
                 if (parsed.usernameText == null && (attrValue.contains("email") || attrValue.contains("username") || attrValue.contains("login"))) {
                     parsed.usernameText = node.getText();

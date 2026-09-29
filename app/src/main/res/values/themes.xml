@@ -1,18 +1,88 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <style name="Theme.PassManager" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/vault_accent</item>
-        <item name="colorSecondary">@color/vault_accent</item>
-        <item name="android:windowBackground">@color/vault_background</item>
-        <item name="colorSurface">@color/vault_surface</item>
-        <item name="colorOnSurface">@color/vault_text_primary</item>
+
+    <!--
+        Ledger app theme (Material 3, follows the system light/dark setting).
+        Colors: values/colors.xml and values-night/colors.xml. Type: values/type.xml.
+        Dynamic (wallpaper) color is intentionally off so the vault always looks the same.
+    -->
+    <style name="Theme.PassManager" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/ledger_primary</item>
+        <item name="colorOnPrimary">@color/ledger_on_primary</item>
+        <item name="colorPrimaryContainer">@color/ledger_primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/ledger_on_primary_container</item>
+        <item name="colorPrimaryInverse">@color/ledger_inverse_primary</item>
+
+        <item name="colorSecondary">@color/ledger_secondary</item>
+        <item name="colorOnSecondary">@color/ledger_on_secondary</item>
+        <item name="colorSecondaryContainer">@color/ledger_secondary_container</item>
+        <item name="colorOnSecondaryContainer">@color/ledger_on_secondary_container</item>
+
+        <item name="colorTertiary">@color/ledger_tertiary</item>
+        <item name="colorOnTertiary">@color/ledger_on_tertiary</item>
+        <item name="colorTertiaryContainer">@color/ledger_tertiary_container</item>
+        <item name="colorOnTertiaryContainer">@color/ledger_on_tertiary_container</item>
+
+        <item name="colorError">@color/ledger_error</item>
+        <item name="colorOnError">@color/ledger_on_error</item>
+        <item name="colorErrorContainer">@color/ledger_error_container</item>
+        <item name="colorOnErrorContainer">@color/ledger_on_error_container</item>
+
+        <item name="colorAttention">@color/ledger_attention</item>
+        <item name="colorOnAttention">@color/ledger_on_attention</item>
+        <item name="colorAttentionContainer">@color/ledger_attention_container</item>
+        <item name="colorOnAttentionContainer">@color/ledger_on_attention_container</item>
+
+        <item name="android:colorBackground">@color/ledger_surface</item>
+        <item name="colorOnBackground">@color/ledger_on_surface</item>
+        <item name="colorSurface">@color/ledger_surface</item>
+        <item name="colorOnSurface">@color/ledger_on_surface</item>
+        <item name="colorSurfaceVariant">@color/ledger_surface_variant</item>
+        <item name="colorOnSurfaceVariant">@color/ledger_on_surface_variant</item>
+        <item name="colorSurfaceDim">@color/ledger_surface_dim</item>
+        <item name="colorSurfaceBright">@color/ledger_surface_bright</item>
+        <item name="colorSurfaceContainerLowest">@color/ledger_surface_container_lowest</item>
+        <item name="colorSurfaceContainerLow">@color/ledger_surface_container_low</item>
+        <item name="colorSurfaceContainer">@color/ledger_surface_container</item>
+        <item name="colorSurfaceContainerHigh">@color/ledger_surface_container_high</item>
+        <item name="colorSurfaceContainerHighest">@color/ledger_surface_container_highest</item>
+        <item name="colorSurfaceInverse">@color/ledger_inverse_surface</item>
+        <item name="colorOnSurfaceInverse">@color/ledger_inverse_on_surface</item>
+
+        <item name="colorOutline">@color/ledger_outline</item>
+        <item name="colorOutlineVariant">@color/ledger_outline_variant</item>
+
+        <item name="android:windowBackground">@color/ledger_surface</item>
+        <item name="android:windowLightStatusBar">@bool/ledger_light_system_bars</item>
+        <item name="android:windowLightNavigationBar">@bool/ledger_light_system_bars</item>
     </style>
 
-    <style name="Base.Theme.PassManager" parent="Theme.Material3.DayNight.NoActionBar">
+    <!-- Launcher activity: the Android 12+ system splash (app icon on the surface color) -->
+    <style name="Theme.Ledger.Launch" parent="Theme.PassManager">
+        <item name="android:windowSplashScreenBackground">@color/ledger_surface</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
     </style>
 
-    <style name="Theme.LedgerAutofillPicker" parent="Theme.Material3.DayNight.Dialog.Alert">
-        <item name="android:windowNoTitle">true</item>
+    <!-- Invisible host for the autofill fingerprint/PIN prompt; only the prompt itself shows -->
+    <style name="Theme.Ledger.Transparent" parent="Theme.PassManager">
+        <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="colorPrimary">#00FF00</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:windowAnimationStyle">@null</item>
+    </style>
+
+    <!--
+        Autofill "Search Ledger" picker: the full app palette, shown as a floating dialog over
+        the app being filled. Rows sit on surface-container-high, so the row ripple still reads.
+    -->
+    <style name="Theme.LedgerAutofillPicker" parent="Theme.PassManager">
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@drawable/bg_floating_sheet</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:windowCloseOnTouchOutside">true</item>
+        <item name="android:windowMinWidthMajor">@dimen/picker_min_width_major</item>
+        <item name="android:windowMinWidthMinor">@dimen/picker_min_width_minor</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
     </style>
 </resources>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ledger color roles, dark theme. See values/colors.xml for how these were derived. -->
+<resources>
+    <color name="ledger_primary">#8CC8E4</color>
+    <color name="ledger_on_primary">#003547</color>
+    <color name="ledger_primary_container">#004D67</color>
+    <color name="ledger_on_primary_container">#C1E8FF</color>
+
+    <color name="ledger_secondary">#B5CAD7</color>
+    <color name="ledger_on_secondary">#1F333D</color>
+    <color name="ledger_secondary_container">#364954</color>
+    <color name="ledger_on_secondary_container">#D1E6F3</color>
+
+    <color name="ledger_tertiary">#C8C2EA</color>
+    <color name="ledger_on_tertiary">#302C4C</color>
+    <color name="ledger_tertiary_container">#474364</color>
+    <color name="ledger_on_tertiary_container">#E5DEFF</color>
+
+    <color name="ledger_error">#F2B8B5</color>
+    <color name="ledger_on_error">#690005</color>
+    <color name="ledger_error_container">#93000A</color>
+    <color name="ledger_on_error_container">#FFDAD6</color>
+
+    <color name="ledger_attention">#F2B45A</color>
+    <color name="ledger_on_attention">#472A00</color>
+    <color name="ledger_attention_container">#6A3F00</color>
+    <color name="ledger_on_attention_container">#FFDDB8</color>
+
+    <color name="ledger_surface">#14181D</color>
+    <color name="ledger_on_surface">#E3E7EC</color>
+    <color name="ledger_surface_variant">#40484C</color>
+    <color name="ledger_on_surface_variant">#A9B3BF</color>
+    <color name="ledger_surface_dim">#0F1417</color>
+    <color name="ledger_surface_bright">#353A3D</color>
+    <color name="ledger_surface_container_lowest">#0A0F12</color>
+    <color name="ledger_surface_container_low">#171C1F</color>
+    <color name="ledger_surface_container">#1B2023</color>
+    <color name="ledger_surface_container_high">#262B2E</color>
+    <color name="ledger_surface_container_highest">#313539</color>
+
+    <color name="ledger_outline">#6E7885</color>
+    <color name="ledger_outline_variant">#40484C</color>
+    <color name="ledger_inverse_surface">#DFE3E7</color>
+    <color name="ledger_inverse_on_surface">#2C3134</color>
+    <color name="ledger_inverse_primary">#186584</color>
+</resources>

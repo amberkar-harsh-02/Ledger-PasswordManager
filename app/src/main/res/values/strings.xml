@@ -1,3 +1,310 @@
 <resources>
     <string name="app_name">Ledger</string>
+
+    <!-- Navigation bar -->
+    <string name="nav_home">Home</string>
+    <string name="nav_vault">Vault</string>
+    <string name="nav_codes">2FA</string>
+    <string name="nav_security">Security</string>
+    <string name="nav_about">About</string>
+
+    <!-- Vault tab -->
+    <string name="vault_title">Vault</string>
+    <string name="vault_search_hint">Search logins</string>
+    <string name="vault_add_login">Add login</string>
+
+    <!-- Lock cover shown when returning to the app -->
+    <string name="lock_cover_title">Ledger is locked</string>
+    <string name="lock_cover_body">Confirm it\'s you to see your vault.</string>
+    <string name="lock_cover_unlock">Unlock</string>
+
+    <!-- Home -->
+    <string name="home_greeting_morning">Good morning, %1$s</string>
+    <string name="home_greeting_afternoon">Good afternoon, %1$s</string>
+    <string name="home_greeting_evening">Good evening, %1$s</string>
+    <string name="home_greeting_morning_no_name">Good morning</string>
+    <string name="home_greeting_afternoon_no_name">Good afternoon</string>
+    <string name="home_greeting_evening_no_name">Good evening</string>
+    <plurals name="home_total_logins">
+        <item quantity="one">%1$d login</item>
+        <item quantity="other">%1$d logins</item>
+    </plurals>
+    <string name="home_count_strong">%1$d strong</string>
+    <string name="home_count_fair">%1$d fair</string>
+    <string name="home_count_weak">%1$d weak</string>
+    <string name="home_balance_description">%1$d strong, %2$d fair and %3$d weak passwords</string>
+    <string name="home_needs_attention">Needs attention</string>
+    <string name="home_attention_hint">Tap a login to give it a stronger password.</string>
+    <string name="home_all_strong">Every password is strong. Nothing to fix.</string>
+    <string name="home_empty_title">Your vault is empty</string>
+    <string name="home_empty_body">Add your first login to see how strong your passwords are.</string>
+
+    <!-- 2FA codes -->
+    <string name="codes_title">2FA codes</string>
+    <string name="codes_hint">Tap a code to show and copy it. Codes change every 30 seconds.</string>
+    <string name="codes_empty_title">No 2FA codes yet</string>
+    <string name="codes_empty_body">Tap + to link a login to the secret key from the website\'s security settings.</string>
+    <string name="codes_empty_body_duress">Your vault is empty.</string>
+    <string name="codes_hidden">••• •••</string>
+    <string name="codes_copied">Code copied</string>
+    <string name="codes_show_copy">Show and copy code for %1$s</string>
+    <string name="codes_row_hidden">%1$s, %2$s, code hidden, %3$d seconds left</string>
+    <string name="codes_row_revealed">%1$s, %2$s, code %3$s, %4$d seconds left</string>
+    <string name="codes_link">Link a 2FA code</string>
+    <string name="codes_link_body">Choose the login, then paste the secret key the website shows when you set up an authenticator app. It\'s usually under the QR code.</string>
+    <string name="codes_link_account">Login</string>
+    <string name="codes_link_secret">Secret key</string>
+    <string name="codes_link_secret_helper">Letters A–Z and digits 2–7</string>
+    <string name="codes_link_paste">Paste secret key</string>
+    <string name="codes_link_confirm">Link code</string>
+    <string name="codes_link_pick_account">Choose a login.</string>
+    <string name="codes_link_invalid">That isn\'t a valid secret key. It only uses letters A–Z and digits 2–7.</string>
+    <string name="codes_linked">2FA code linked to %1$s</string>
+    <string name="codes_nothing_to_link">Every login already has a 2FA code. Add a login first to link another.</string>
+
+    <!-- Security -->
+    <string name="security_title">Security</string>
+    <string name="security_group_protection">Protection</string>
+    <string name="security_group_autofill">Autofill</string>
+    <string name="security_group_backup">Backup</string>
+    <string name="security_group_activity">Activity</string>
+    <string name="security_hide_screen">Hide screen contents</string>
+    <string name="security_hide_screen_summary">Blocks screenshots and blanks Ledger in the recent apps view.</string>
+    <string name="security_auto_lock">Auto-lock</string>
+    <string name="security_auto_lock_value_immediately">Lock as soon as you leave Ledger</string>
+    <string name="security_auto_lock_value_1m">Lock 1 minute after you leave Ledger</string>
+    <string name="security_auto_lock_value_5m">Lock 5 minutes after you leave Ledger</string>
+    <string name="security_auto_lock_value_never">Never lock while Ledger is open in the background</string>
+    <string name="security_auto_lock_immediately">Immediately</string>
+    <string name="security_auto_lock_1m">After 1 minute</string>
+    <string name="security_auto_lock_5m">After 5 minutes</string>
+    <string name="security_auto_lock_never">Never</string>
+    <string name="security_duress">Duress PIN</string>
+    <string name="security_duress_summary">A second PIN that opens an empty decoy vault if someone forces you to unlock.</string>
+    <string name="security_autofill">Fill with Ledger</string>
+    <string name="security_autofill_summary">Offer your saved logins in other apps and websites.</string>
+    <string name="security_autofill_off">Ledger autofill turned off</string>
+    <string name="security_export">Export encrypted backup</string>
+    <string name="security_export_summary">Save a password-protected .ledger file you can restore on any phone.</string>
+    <string name="security_import">Restore from backup</string>
+    <string name="security_import_summary">Add the logins from a .ledger file. Your current vault stays as it is.</string>
+    <string name="security_reuse">Check for reused passwords</string>
+    <string name="security_reuse_summary">Find logins that share the same password.</string>
+    <string name="security_history">Unlock history</string>
+    <string name="security_history_summary">See recent unlocks and failed attempts.</string>
+
+    <!-- Security warnings -->
+    <string name="warn_never_lock_title">Never lock Ledger?</string>
+    <string name="warn_never_lock_body">Ledger will stay open when you switch apps. Anyone who picks up your unlocked phone can see your passwords.</string>
+    <string name="warn_never_lock_confirm">Never lock</string>
+    <string name="warn_hide_screen_title">Allow screenshots of Ledger?</string>
+    <string name="warn_hide_screen_body">Screenshots, screen recordings and the recent apps view will be able to show your passwords and 2FA codes.</string>
+    <string name="warn_hide_screen_confirm">Allow</string>
+
+    <!-- Security dialogs -->
+    <string name="backup_export_title">Encrypt backup</string>
+    <string name="backup_export_body">Choose a password for this file. Without it the backup can\'t be opened, and it can\'t be recovered.</string>
+    <string name="backup_export_confirm">Encrypt and save</string>
+    <string name="backup_import_title">Open backup</string>
+    <string name="backup_import_body">Enter the password used when this backup was made.</string>
+    <string name="backup_import_confirm">Restore</string>
+    <string name="backup_password_hint">Backup password</string>
+    <string name="backup_password_too_short">Use at least %1$d characters.</string>
+    <string name="backup_empty_vault">Your vault is empty, so there\'s nothing to back up.</string>
+    <string name="backup_saved">Backup saved</string>
+    <string name="backup_save_failed">Couldn\'t save the backup. Try again, or choose another location.</string>
+    <plurals name="backup_restored">
+        <item quantity="one">Restored %1$d login</item>
+        <item quantity="other">Restored %1$d logins</item>
+    </plurals>
+    <string name="backup_wrong_password">Wrong backup password. Check it and try again.</string>
+    <string name="backup_unreadable">Couldn\'t read this file. Choose a .ledger backup made by Ledger.</string>
+    <string name="duress_title">Set a duress PIN</string>
+    <string name="duress_body">If someone forces you to unlock Ledger, enter this PIN instead. Ledger opens an empty vault. It must be different from your main PIN.</string>
+    <string name="duress_hint">4-digit duress PIN</string>
+    <string name="duress_save">Save PIN</string>
+    <string name="duress_needs_4">Enter exactly 4 digits.</string>
+    <string name="duress_same_as_main">This is your main PIN. Choose different digits.</string>
+    <string name="duress_saved">Duress PIN saved</string>
+    <string name="reuse_not_enough">Add at least 2 logins to check for reused passwords.</string>
+    <string name="reuse_none_title">No reused passwords</string>
+    <string name="reuse_none_body">Every login has its own password.</string>
+    <string name="reuse_found_title">Reused passwords found</string>
+    <string name="reuse_found_body">These logins share a password. If one of these sites is breached, the others are at risk too. Give each one its own password.</string>
+    <string name="reuse_group">Same password: %1$s</string>
+    <string name="reuse_failed">Couldn\'t check your passwords. Try again.</string>
+    <string name="history_title">Unlock history</string>
+    <string name="history_empty">No unlocks recorded yet.</string>
+    <string name="history_pin_ok">Unlocked with PIN</string>
+    <string name="history_pin_failed">Wrong PIN</string>
+    <string name="history_fingerprint_ok">Unlocked with fingerprint</string>
+    <string name="history_fingerprint_failed">Fingerprint not recognized</string>
+    <string name="history_other_ok">Unlocked</string>
+    <string name="history_other_failed">Unlock failed</string>
+    <string name="action_done">Done</string>
+
+    <!-- About -->
+    <string name="about_version">Version %1$s</string>
+    <string name="about_group_ledger">Ledger</string>
+    <string name="about_group_storage">Storage</string>
+    <string name="about_how_it_works">How Ledger protects your data</string>
+    <string name="about_how_it_works_summary">Encryption, the browser bridge and 2FA in plain words.</string>
+    <string name="about_how_it_works_body">Every password and 2FA secret is encrypted on this phone with AES-256 before it\'s saved. The key is held by Android Keystore and never leaves the phone.\n\nWhen you fill a login on your computer, the password is encrypted with a one-time key from the QR code on your screen. The relay in between only ever sees scrambled data.\n\nHome checks the strength of every saved password and lists the ones worth changing.\n\nBackups are encrypted with a password you choose, so only you can restore them.</string>
+    <string name="about_extension">Get the browser extension</string>
+    <string name="about_extension_summary">Send the download link to your computer.</string>
+    <string name="about_extension_share_text">Install the Ledger browser extension on your computer to fill passwords from your phone:\n\n%1$s</string>
+    <string name="about_extension_share_title">Send extension link</string>
+    <string name="about_clear_cache">Clear cache</string>
+    <string name="about_cache_size">Temporary files: %1$s. Your vault isn\'t affected.</string>
+    <string name="about_cache_empty">No temporary files. Your vault isn\'t affected.</string>
+    <string name="about_clear_cache_title">Clear cache?</string>
+    <string name="about_clear_cache_body">This deletes %1$s of temporary files, such as scanner images. Your logins, 2FA codes and settings stay.</string>
+    <string name="about_clear_cache_confirm">Clear</string>
+    <string name="about_cache_cleared">Cleared %1$s</string>
+    <string name="about_credit">Made by Harsh Amberkar.</string>
+    <string name="about_easter_egg_done">Developer Mode Unlocked. (Just kidding, stay secure!)</string>
+    <plurals name="about_easter_egg_taps_left">
+        <item quantity="one">%1$d tap away from being a developer…</item>
+        <item quantity="other">%1$d taps away from being a developer…</item>
+    </plurals>
+
+    <!-- Autofill (shown over other apps) -->
+    <string name="autofill_password_only">Password only</string>
+    <string name="autofill_prompt_title">Fill %1$s login?</string>
+    <string name="autofill_prompt_title_generic">Fill this login?</string>
+    <string name="autofill_prompt_into_site">Into %1$s in %2$s</string>
+    <string name="autofill_prompt_into_app">Into %1$s (%2$s)</string>
+    <string name="autofill_prompt_into_unknown">Into an app Ledger couldn\'t identify</string>
+    <string name="autofill_search_title">Search Ledger</string>
+    <string name="autofill_search_subtitle">Choose a login to fill</string>
+    <string name="picker_title">Choose a login</string>
+    <string name="picker_body_generic">Ledger fills the username and password you pick.</string>
+    <string name="picker_body_target">Ledger fills the login you pick. %1$s.</string>
+    <string name="picker_empty">Your vault is empty. Add a login in Ledger first.</string>
+    <string name="picker_fill_failed">Couldn\'t fill this login. Try another, or open Ledger to check it.</string>
+    <string name="autofill_saved">%1$s saved to Ledger</string>
+    <string name="autofill_save_failed">Ledger couldn\'t read the password on this screen. Add the login in Ledger instead.</string>
+
+    <!-- Vault rows and password strength -->
+    <string name="vault_row_description">%1$s, %2$s, %3$s password</string>
+    <string name="strength_weak">Weak</string>
+    <string name="strength_fair">Fair</string>
+    <string name="strength_strong">Strong</string>
+    <string name="strength_very_strong">Very strong</string>
+
+    <!-- Login detail sheet -->
+    <string name="sheet_password_label">Password</string>
+    <string name="sheet_show_password">Show password</string>
+    <string name="sheet_hide_password">Hide password</string>
+    <string name="sheet_copy_password">Copy password</string>
+    <string name="sheet_fill_on_computer">Fill on computer</string>
+    <string name="sheet_edit_login">Edit login</string>
+    <string name="copied_password">Password copied. It clears from the clipboard in 45 seconds.</string>
+    <string name="error_decrypt">Couldn\'t decrypt this login. It may have been saved on another phone.</string>
+
+    <!-- Add login sheet and new-account dialog -->
+    <string name="add_sheet_title">Add a login</string>
+    <string name="add_sheet_manual_title">Enter a login</string>
+    <string name="add_sheet_manual_body">Save a password you already use.</string>
+    <string name="add_sheet_new_title">New account on computer</string>
+    <string name="add_sheet_new_body">Ledger creates a strong password, saves it, and fills it in your browser.</string>
+    <string name="new_account_title">New account on computer</string>
+    <string name="new_account_body">After you tap Continue, scan the QR code shown by the Ledger extension.</string>
+    <string name="new_account_continue">Continue</string>
+
+    <!-- Add / Edit login form -->
+    <string name="add_title">Add login</string>
+    <string name="add_save">Save login</string>
+    <string name="add_saved">%1$s saved</string>
+    <string name="edit_title">Edit login</string>
+    <string name="edit_save">Save changes</string>
+    <string name="edit_saved">Changes saved</string>
+    <string name="edit_decrypt_failed">Couldn\'t decrypt the current password. Enter a new one to replace it.</string>
+    <string name="field_site_or_app">Website or app</string>
+    <string name="field_site_or_app_helper">Use the name autofill shows, like GitHub</string>
+    <string name="field_site_required">Enter the website or app name.</string>
+    <string name="field_username">Username or email</string>
+    <string name="field_password">Password</string>
+    <string name="field_password_required">Enter a password, or generate one.</string>
+    <string name="action_generate_password">Generate strong password</string>
+    <string name="action_close">Close</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_undo">Undo</string>
+    <string name="error_encrypt">Couldn\'t encrypt the password. Try again.</string>
+    <string name="field_username_required">Enter the username or email for the new account.</string>
+
+    <!-- Delete and swipe -->
+    <string name="delete_title">Delete %1$s?</string>
+    <string name="delete_body">This removes the login and its 2FA code from your vault.</string>
+    <string name="delete_confirm">Delete</string>
+    <string name="deleted">%1$s deleted</string>
+
+    <!-- Fill on computer: confirm which computer before sending -->
+    <string name="confirm_known_title">Send %1$s login to %2$s?</string>
+    <string name="confirm_known_body">This is a computer you asked Ledger to remember. The login is encrypted end to end.</string>
+    <string name="confirm_new_title">New computer</string>
+    <string name="confirm_new_body">Only continue if these words appear in the Ledger pop-up at the top of your browser, not on the web page. A web page showing a Ledger code is trying to steal your password.</string>
+    <string name="confirm_old_title">Check this computer</string>
+    <string name="confirm_old_body">This code comes from an older Ledger extension, so your phone can\'t check where it came from. Only continue if you opened it from the Ledger button at the top of your browser. Update the extension for safer filling.</string>
+    <string name="confirm_invalid_title">Don\'t use this code</string>
+    <string name="confirm_invalid_body">This code wasn\'t made by the Ledger extension, or it has expired. Nothing was sent. Never scan Ledger codes shown on a web page; open the Ledger button at the top of your browser instead.</string>
+    <string name="confirm_words_label">Check words</string>
+    <string name="confirm_remember">Remember this computer</string>
+    <string name="confirm_remember_summary">Next time, one tap. Leave off for shared or public computers.</string>
+    <string name="confirm_name_hint">Name, e.g. Home PC</string>
+    <string name="confirm_name_default">My computer</string>
+    <string name="confirm_send">Send</string>
+    <string name="confirm_send_words_match">Words match, send</string>
+    <string name="confirm_close">Close</string>
+    <string name="confirm_this_login">this</string>
+
+    <!-- Remembered computers (Security) -->
+    <string name="security_computers">Computers</string>
+    <string name="security_computers_summary">Computers that fill logins with one tap.</string>
+    <string name="computers_title">Remembered computers</string>
+    <string name="computers_empty">No computers yet. When you fill a login on a computer, you can choose to remember it.</string>
+    <string name="computers_last_used">Last used %1$s</string>
+    <string name="computers_rename">Rename</string>
+    <string name="computers_forget">Forget</string>
+    <string name="computers_forget_title">Forget %1$s?</string>
+    <string name="computers_forget_body">Next time you fill a login there, Ledger will treat it as a new computer and show check words.</string>
+    <string name="computers_forgotten">%1$s forgotten</string>
+
+    <!-- Fill on computer (QR bridge) -->
+    <string name="scan_prompt_fill">Scan the QR code shown by the Ledger extension</string>
+    <string name="scan_cancelled">Scan cancelled</string>
+    <string name="bridge_sending">Sending to your computer…</string>
+    <string name="bridge_sent">Sent. Check your browser.</string>
+    <string name="bridge_failed">Couldn\'t reach your computer. Check your connection and try again.</string>
+    <string name="bridge_no_relay">This build of Ledger has no relay set up, so it can\'t fill on a computer. Add RELAY_URL to local.properties and rebuild.</string>
+    <string name="bridge_bad_qr">That isn\'t a Ledger QR code. Scan the code shown by the Ledger extension.</string>
+    <string name="bridge_saved_new">%1$s saved to your vault</string>
+
+    <!-- Welcome (first run) -->
+    <string name="welcome_title">Welcome to Ledger</string>
+    <string name="welcome_body">Ledger keeps your passwords and 2FA codes encrypted on this phone.</string>
+    <string name="welcome_name_label">What should we call you?</string>
+    <string name="welcome_name_hint">First name</string>
+    <string name="welcome_name_error">Enter your name to continue.</string>
+    <string name="welcome_continue">Continue</string>
+
+    <!-- Lock screen -->
+    <string name="lock_title_create">Create a PIN</string>
+    <string name="lock_subtitle_create">Choose 4 digits to lock your vault.</string>
+    <string name="lock_title_confirm">Confirm your PIN</string>
+    <string name="lock_subtitle_confirm">Enter the same 4 digits again.</string>
+    <string name="lock_mismatch">PINs didn\'t match. Choose your 4 digits again.</string>
+    <string name="lock_title_unlock">Enter your PIN</string>
+    <string name="lock_subtitle_unlock">Or use your fingerprint.</string>
+    <string name="lock_subtitle_pin_required">For your security, enter your PIN once every 3 days.</string>
+    <string name="lock_wrong_pin">Wrong PIN. Try again.</string>
+    <string name="lock_locked_out">Too many attempts. Try again in %1$d s.</string>
+    <string name="lock_digits_entered">%1$d of 4 digits entered</string>
+    <string name="lock_use_fingerprint">Use fingerprint</string>
+    <string name="lock_delete_digit">Delete last digit</string>
+    <string name="biometric_title">Unlock Ledger</string>
+    <string name="biometric_subtitle">Use your fingerprint to open your vault.</string>
+    <string name="biometric_use_pin">Use PIN</string>
+    <string name="pin_dialog_body">Enter your PIN.</string>
+    <string name="pin_dialog_hint">4-digit PIN</string>
 </resources>

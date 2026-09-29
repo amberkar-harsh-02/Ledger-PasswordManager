@@ -12,15 +12,20 @@ public class TotpEngine {
      * @return A 6-digit string (e.g., "045291").
      */
     public static String generateTOTP(String secretKey) {
+        return generateTOTP(secretKey, System.currentTimeMillis());
+    }
+
+    /** Same as {@link #generateTOTP(String)} for a given moment in time (used by tests). */
+    public static String generateTOTP(String secretKey, long timeMillis) {
         if (secretKey == null || secretKey.trim().isEmpty()) return "------";
 
         try {
             // 1. Clean the key (remove spaces, force uppercase for standard Base32)
-            String normalizedBase32Key = secretKey.replace(" ", "").toUpperCase();
+            String normalizedBase32Key = secretKey.replace(" ", "").toUpperCase(java.util.Locale.ROOT);
             byte[] bytes = decodeBase32(normalizedBase32Key);
 
             // 2. Get the current Unix time divided into 30-second windows
-            long timeIndex = System.currentTimeMillis() / 1000 / 30;
+            long timeIndex = timeMillis / 1000 / 30;
 
             // 3. Convert that time index into an 8-byte array
             ByteBuffer buffer = ByteBuffer.allocate(8);
@@ -43,12 +48,22 @@ public class TotpEngine {
             int otp = binary % 1000000;
 
             // 6. Format as exactly 6 digits, padding with leading zeros if necessary
-            return String.format("%06d", otp);
+            return String.format(java.util.Locale.ROOT, "%06d", otp);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            // Not logged: the decoder message can hold part of the secret
             return "ERROR";
         }
+    }
+
+    /**
+     * True if the text looks like a usable Base32 2FA secret: letters A-Z and digits 2-7
+     * (spaces, lowercase and trailing '=' padding allowed), at least 8 characters.
+     */
+    public static boolean isValidSecret(String secretKey) {
+        if (secretKey == null) return false;
+        String normalized = secretKey.replace(" ", "").toUpperCase(java.util.Locale.ROOT).replaceAll("=+$", "");
+        return normalized.length() >= 8 && normalized.matches("[A-Z2-7]+");
     }
 
     /**

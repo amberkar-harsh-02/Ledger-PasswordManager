@@ -1,12 +1,12 @@
 package com.example.passmanager.ui.main;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.format.Formatter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -14,12 +14,19 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.passmanager.BuildConfig;
 import com.example.passmanager.R;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
+import java.io.File;
+import java.util.concurrent.Executors;
+
 public class AboutFragment extends Fragment {
 
+    private static final String EXTENSION_LINK = "https://github.com/amberkar-harsh-02/Ledger-extension/releases/latest";
+
     private int versionTapCount = 0;
+    private TextView textCacheSize;
 
     @Nullable
     @Override
@@ -27,73 +34,105 @@ public class AboutFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_about, container, false);
 
         TextView textVersion = view.findViewById(R.id.text_version_info);
-        LinearLayout rowFieldManual = view.findViewById(R.id.row_field_manual);
-        LinearLayout rowRestartBridge = view.findViewById(R.id.row_restart_bridge);
-        LinearLayout rowClearCache = view.findViewById(R.id.row_clear_cache);
+        textCacheSize = view.findViewById(R.id.text_cache_size);
 
-        // Link the new share button from your XML
-        Button btnShareExtension = view.findViewById(R.id.btn_share);
+        // Real version from the build, not a hard-coded string
+        textVersion.setText(getString(R.string.about_version, BuildConfig.VERSION_NAME));
 
-        // --- 0. Share Desktop Extension ---
-        btnShareExtension.setOnClickListener(v -> {
-            String extensionLink = "https://github.com/amberkar-harsh-02/Ledger-extension/releases/latest";
-            String shareMessage = "Install the Ledger Browser Injector on your PC to link with your vault:\n\n" + extensionLink;
-
-            Intent sendIntent = new Intent();
-            sendIntent.setAction(Intent.ACTION_SEND);
-            sendIntent.putExtra(Intent.EXTRA_TEXT, shareMessage);
+        // --- Share the desktop extension link ---
+        view.findViewById(R.id.btn_share).setOnClickListener(v -> {
+            Intent sendIntent = new Intent(Intent.ACTION_SEND);
+            sendIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.about_extension_share_text, EXTENSION_LINK));
             sendIntent.setType("text/plain");
-
-            Intent shareIntent = Intent.createChooser(sendIntent, "Send Extension Link to PC");
-            startActivity(shareIntent);
+            com.example.passmanager.security.VaultSession.expectReturn(); // share sheet, back in a moment
+            startActivity(Intent.createChooser(sendIntent, getString(R.string.about_extension_share_title)));
         });
 
-        // --- 1. The Easter Egg ---
+        // --- The Easter Egg ---
         textVersion.setOnClickListener(v -> {
             versionTapCount++;
             if (versionTapCount == 7) {
-                Toast.makeText(requireContext(), "Developer Mode Unlocked. (Just kidding, stay secure!)", Toast.LENGTH_LONG).show();
+                Messages.showLong(requireContext(), R.string.about_easter_egg_done);
                 versionTapCount = 0; // Reset
             } else if (versionTapCount >= 3) {
-                Toast.makeText(requireContext(), (7 - versionTapCount) + " taps away from being a developer...", Toast.LENGTH_SHORT).show();
+                int left = 7 - versionTapCount;
+                Messages.show(requireContext(), getResources().getQuantityString(R.plurals.about_easter_egg_taps_left, left, left));
             }
         });
 
-        // --- 2. Field Manual & Privacy Briefing ---
-        rowFieldManual.setOnClickListener(v -> {
+        // --- How Ledger protects your data ---
+        view.findViewById(R.id.row_field_manual).setOnClickListener(v ->
+                new MaterialAlertDialogBuilder(requireContext())
+                        .setTitle(R.string.about_how_it_works)
+                        .setMessage(R.string.about_how_it_works_body)
+                        .setPositiveButton(R.string.action_done, null)
+                        .show());
 
-            String briefingText = "Transparency and operational security are our top priorities, which is why this tool is built entirely on a strict zero-knowledge architecture. Every credential you save is encrypted locally on your device using AES-256-GCM before it ever touches the internal database. We cannot see your data, and any payloads fired to your computer transit via an ephemeral, unlogged WebSocket relay to ensure your operations remain completely dark.\n\n" +
-                    "When you launch the app, your Threat Dashboard immediately goes to work auditing your vault. It actively scans your saved credentials and flags any password with a critical health score as a vulnerability, allowing you to tap and cycle compromised keys instantly.\n\n" +
-                    "For new operations, the VaultShield Sign-Up Injector is your primary defense against clipboard loggers and keyloggers. By accessing the add menu, you can generate cryptographically secure passwords on the fly and use the built-in scanner to seamlessly inject them directly into your Ledger Browser Extension.\n\n" +
-                    "Finally, to keep your digital footprint small, Ledger eliminates the need for third-party 2FA apps. You can link Base32 Secret Keys directly to your vault accounts, generating rolling six-digit TOTP codes natively within your secure environment.\n\n" +
-                    "──────────────\n" +
-                    "Ledger Security\n" +
-                    "Engineered by Harsh Amberkar";
-
-            new MaterialAlertDialogBuilder(requireContext())
-                    .setTitle("Operational Briefing")
-                    .setMessage(briefingText)
-                    .setPositiveButton("Understood", null)
-                    .show();
-        });
-
-        // --- 3. Utilities ---
-        rowRestartBridge.setOnClickListener(v -> {
-            Toast.makeText(requireContext(), "WebSocket Listener connection forcefully reset.", Toast.LENGTH_SHORT).show();
-        });
-
-        rowClearCache.setOnClickListener(v -> {
-            new MaterialAlertDialogBuilder(requireContext())
-                    .setTitle("Clear Cache")
-                    .setMessage("This will clear temporary UI assets. Your encrypted vault data will NOT be deleted.")
-                    .setPositiveButton("Clear", (dialog, which) -> {
-                        requireContext().getCacheDir().delete();
-                        Toast.makeText(requireContext(), "Local cache cleared.", Toast.LENGTH_SHORT).show();
-                    })
-                    .setNegativeButton("Cancel", null)
-                    .show();
-        });
+        // --- Clear cache (really deletes the cache directory's contents) ---
+        view.findViewById(R.id.row_clear_cache).setOnClickListener(v -> confirmClearCache());
+        refreshCacheSize();
 
         return view;
+    }
+
+    private void refreshCacheSize() {
+        Context appContext = requireContext().getApplicationContext();
+        Executors.newSingleThreadExecutor().execute(() -> {
+            long bytes = sizeOf(appContext.getCacheDir());
+            textCacheSize.post(() -> {
+                if (!isAdded()) return;
+                textCacheSize.setText(bytes == 0
+                        ? getString(R.string.about_cache_empty)
+                        : getString(R.string.about_cache_size, Formatter.formatShortFileSize(appContext, bytes)));
+            });
+        });
+    }
+
+    private void confirmClearCache() {
+        Context appContext = requireContext().getApplicationContext();
+        android.app.Activity host = requireActivity();
+        long bytes = sizeOf(appContext.getCacheDir());
+        if (bytes == 0) {
+            Messages.show(requireActivity(), R.string.about_cache_empty);
+            return;
+        }
+        String size = Formatter.formatShortFileSize(appContext, bytes);
+
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.about_clear_cache_title)
+                .setMessage(getString(R.string.about_clear_cache_body, size))
+                .setPositiveButton(R.string.about_clear_cache_confirm, (dialog, which) ->
+                        Executors.newSingleThreadExecutor().execute(() -> {
+                            long before = sizeOf(appContext.getCacheDir());
+                            deleteContents(appContext.getCacheDir());
+                            long freed = Math.max(0, before - sizeOf(appContext.getCacheDir()));
+                            textCacheSize.post(() -> {
+                                Messages.show(host, appContext.getString(R.string.about_cache_cleared,
+                                        Formatter.formatShortFileSize(appContext, freed)));
+                                if (isAdded()) refreshCacheSize();
+                            });
+                        }))
+                .setNegativeButton(R.string.action_cancel, null)
+                .show();
+    }
+
+    private static long sizeOf(File file) {
+        if (file == null || !file.exists()) return 0;
+        if (file.isFile()) return file.length();
+        long total = 0;
+        File[] children = file.listFiles();
+        if (children != null) for (File child : children) total += sizeOf(child);
+        return total;
+    }
+
+    // Deletes everything inside the directory but keeps the directory itself
+    private static void deleteContents(File dir) {
+        File[] children = dir != null ? dir.listFiles() : null;
+        if (children == null) return;
+        for (File child : children) {
+            if (child.isDirectory()) deleteContents(child);
+            //noinspection ResultOfMethodCallIgnored
+            child.delete();
+        }
     }
 }
