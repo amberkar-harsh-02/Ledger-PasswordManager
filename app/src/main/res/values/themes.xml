@@ -56,10 +56,12 @@
         <item name="android:windowLightNavigationBar">@bool/ledger_light_system_bars</item>
     </style>
 
-    <!-- Launcher activity: the Android 12+ system splash (app icon on the surface color) -->
+    <!-- Launcher activity: the Android 12+ system splash (app icon on the surface color).
+         The splash draws only the icon's foreground (the white mark), so give it the ink-blue icon background. -->
     <style name="Theme.Ledger.Launch" parent="Theme.PassManager">
         <item name="android:windowSplashScreenBackground">@color/ledger_surface</item>
-        <item name="android:windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="android:windowSplashScreenIconBackgroundColor">@color/ic_launcher_background</item>
     </style>
 
     <!-- Invisible host for the autofill fingerprint/PIN prompt; only the prompt itself shows -->

@@ -126,9 +126,18 @@ async function buildQrPayload(room, key) {
 const roomId = generateRoomId();
 const sessionKey = generateEphemeralKey();
 
-// Ensure LEDGER_CONFIG is loaded before this script runs!
-// Ledger's own relay (relay/ in the app repo): no API key, the room ID is the address
-const RELAY_URL = `${LEDGER_CONFIG.RELAY_URL.replace(/\/+$/, "")}/v1/room/${roomId}`;
+// Ledger's own relay (relay/ in the app repo): no API key, the room ID is the address.
+// The address comes from config.js (git-ignored; template in config.example.js). Returns null when
+// config.js is missing, empty, still the placeholder, or not a wss:// address, so the popup can say so.
+function relayUrlFor(room) {
+    const base = (typeof LEDGER_CONFIG !== "undefined" && LEDGER_CONFIG && typeof LEDGER_CONFIG.RELAY_URL === "string")
+        ? LEDGER_CONFIG.RELAY_URL.trim()
+        : "";
+    if (!/^wss:\/\/[^\s<>]+$/.test(base)) return null;
+    return `${base.replace(/\/+$/, "")}/v1/room/${room}`;
+}
+
+const RELAY_URL = relayUrlFor(roomId);
 
 const statusBox = document.getElementById('status-text');
 const statusMessage = document.getElementById('status-message');
@@ -145,46 +154,72 @@ const STATUS_ICONS = {
 
 // One place that changes the status line: state is "waiting", "success" or "error"
 function setStatus(state, message) {
-    if (!statusBox) return; // popup.js is also listed as a background script, where there is no popup DOM
+    if (!statusBox) return; // no popup DOM (e.g. popup.html changed); nothing to update
     statusBox.dataset.state = state;
     statusIcon.setAttribute("d", STATUS_ICONS[state]);
     statusMessage.textContent = message;
 }
 
+// No QR code can be shown: say why instead of leaving an empty box
+function showNoCode(message) {
+    if (qrPlaceholder) qrPlaceholder.textContent = "No code yet";
+    setStatus("error", message);
+}
+
 setStatus("waiting", "Connecting…");
 
-const socket = new WebSocket(RELAY_URL);
-
-socket.onerror = function() {
-    qrPlaceholder.textContent = "No code yet";
-    setStatus("error", "Couldn't connect. Check your internet connection, then close and reopen Ledger.");
-};
-
-socket.onopen = async function() {
-    setStatus("waiting", "Waiting for your phone…");
-
-    // Room ID, AES key and this install's signature go into the QR code.
-    // Rendered locally (lib/qrcode.js) so the key never leaves this machine.
-    const payload = await buildQrPayload(roomId, sessionKey);
-    const qr = qrcode(0, 'M');
-    qr.addData(payload.json);
-    qr.make();
-    qrImage.src = qr.createDataURL(4, 0);
-    qrImage.hidden = false;
-    qrPlaceholder.hidden = true;
-
-    // The phone shows the same words; they only ever appear here, in the toolbar pop-up
-    const checkWords = document.getElementById("check-words");
-    if (payload.words) {
-        document.getElementById("check-words-value").textContent = payload.words.join(" · ");
-        checkWords.hidden = false;
+let socket = null;
+if (!RELAY_URL) {
+    showNoCode("Ledger isn't set up yet. Copy config.example.js to config.js, add your relay address, then reload the extension.");
+} else {
+    try {
+        socket = new WebSocket(RELAY_URL);
+    } catch (e) {
+        console.error("Ledger: invalid relay address", e);
+        showNoCode("The relay address in config.js isn't valid. Fix it, then reload the extension.");
     }
-};
+}
+
+if (socket) {
+    socket.onerror = function() {
+        showNoCode("Couldn't connect. Check your internet connection, then close and reopen Ledger.");
+    };
+
+    socket.onopen = async function() {
+        setStatus("waiting", "Waiting for your phone…");
+
+        try {
+            // Room ID, AES key and this install's signature go into the QR code.
+            // Rendered locally (lib/qrcode.js) so the key never leaves this machine.
+            const payload = await buildQrPayload(roomId, sessionKey);
+            const qr = qrcode(0, 'M');
+            qr.addData(payload.json);
+            qr.make();
+            qrImage.src = qr.createDataURL(4, 0);
+            qrImage.hidden = false;
+            qrPlaceholder.hidden = true;
+
+            // The phone shows the same words; they only ever appear here, in the toolbar pop-up
+            const checkWords = document.getElementById("check-words");
+            if (payload.words) {
+                document.getElementById("check-words-value").textContent = payload.words.join(" · ");
+                checkWords.hidden = false;
+            }
+        } catch (e) {
+            // e.g. the browser blocks the extension's storage, so the signing key can't be loaded
+            console.error("Ledger: couldn't build the QR code", e);
+            showNoCode("Couldn't create the code. Close and reopen Ledger; if it keeps happening, reload the extension.");
+            socket.close();
+        }
+    };
+
+    socket.onmessage = onRelayMessage;
+}
 
 
 // --- 3. THE SECURE LISTENER ---
 
-socket.onmessage = async function(event) {
+async function onRelayMessage(event) {
     try {
         const incomingData = JSON.parse(event.data);
 
@@ -223,7 +258,7 @@ socket.onmessage = async function(event) {
     } catch (e) {
         console.error("JSON Parse Error", e);
     }
-};
+}
 
 
 // --- 4. CONFIRM WHICH SITE ---

@@ -1,3 +1,10 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/images/ledger-logo-dark.svg">
+    <img src="docs/images/ledger-logo.svg" width="96" height="96" alt="Ledger logo">
+  </picture>
+</p>
+
 # Ledger
 
 **An offline-first Android password manager that can fill logins on any computer by scanning a QR code, without typing and without an account.**
